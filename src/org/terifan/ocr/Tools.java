@@ -4,7 +4,7 @@ import java.awt.Insets;
 import org.terifan.util.log.Log;
 
 
-public class Tools
+class Tools
 {
 	public static Insets getBorders(Page aPage, int x, int y, int w, int h)
 	{

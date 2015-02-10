@@ -15,7 +15,7 @@ import javax.imageio.ImageIO;
 import org.terifan.util.log.Log;
 
 
-public class CurvatureClassifier
+class CurvatureClassifier
 {
 	private final static int BILEVEL_THRESHOLD = 128;
 	private final static int MATRIX_SIZE = 16;

@@ -2,12 +2,11 @@ package org.terifan.ocr;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 
-public class ImageTools
+class ImageTools
 {
 	/**
 	 * Resizes an image.

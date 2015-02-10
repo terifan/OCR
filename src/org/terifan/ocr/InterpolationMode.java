@@ -3,7 +3,7 @@ package org.terifan.ocr;
 import java.awt.RenderingHints;
 
 
-public enum InterpolationMode
+enum InterpolationMode
 {
 	NEAREST(1, "nearest", RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR),
 	BILINEAR(2, "bilinear", RenderingHints.VALUE_INTERPOLATION_BILINEAR),

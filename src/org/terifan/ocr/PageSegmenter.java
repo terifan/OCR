@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import org.terifan.util.log.Log;
 
 
-public class PageSegmenter
+class PageSegmenter
 {
 	private Page mPage;
 	public boolean mLearning; // TODO: remove
