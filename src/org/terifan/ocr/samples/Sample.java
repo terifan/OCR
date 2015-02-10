@@ -6,6 +6,7 @@ import org.terifan.ocr.Resolver;
 import org.terifan.ocr.Symbol;
 import org.terifan.ocr.TextBox;
 import org.terifan.io.Streams;
+import org.terifan.ocr.SimpleResolver;
 import org.terifan.util.log.Log;
 
 
@@ -27,9 +28,10 @@ public class Sample
 
 			page.initDebug();
 
-			engine.loadPage(0.4, 0, 1, 0.5, page);
+			engine.loadPage(0.0, 0.0, 1.0, 1.0, page);
 
-			Log.out.println(engine.scan(0.4, 0, 1, 0.5, new WaybillResolver()));
+//			Log.out.println(engine.scan(0.0, 0.0, 1.0, 1.0, new WaybillResolver()));
+			Log.out.println(engine.scan(0.0, 0.0, 1.0, 1.0, new SimpleResolver()));
 
 			page.writeDebug("d:/debug.png");
 		}
