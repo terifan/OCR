@@ -135,7 +135,7 @@ class ImagePane extends JPanel
 			mOffsetY = 0;
 
 			scaleToFit();
-			setCursor(Cursor.getDefaultCursor());
+			updateCursor();
 		}
 		validateImageOffset();
 		repaint();
@@ -144,7 +144,7 @@ class ImagePane extends JPanel
 
 	public void updateCursor()
 	{
-		if (mSelectionStartOffset != null)
+		if (mSelectionStartOffset != null && mInterpreterTool != null)
 		{
 			setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		}
@@ -154,7 +154,7 @@ class ImagePane extends JPanel
 		}
 		else
 		{
-			setCursor(Cursor.getDefaultCursor());
+			setCursor(OPEN_HAND_CURSOR);
 		}
 	}
 
