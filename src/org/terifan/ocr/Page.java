@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import org.terifan.ui.ImageRotator;
 
 
 public class Page implements Cloneable

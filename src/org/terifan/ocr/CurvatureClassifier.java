@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import org.terifan.util.log.Log;
 
 
 class CurvatureClassifier
@@ -104,7 +103,7 @@ class CurvatureClassifier
 //				}
 //				else
 //				{
-//					Log.out.println(borders);
+//					System.out.println(borders);
 //
 //					BufferedImage tmp3 = mPage.getRegion(box.x + borders.left - 2, box.y + borders.top - 2, box.x + box.width - borders.right + 1 + 4, box.y + box.height - borders.bottom + 1 + 4);
 //
@@ -228,9 +227,9 @@ class CurvatureClassifier
 			{
 				for (double d : f)
 				{
-					Log.out.print((int)Math.round(d) + "\t");
+					System.out.print((int)Math.round(d) + "\t");
 				}
-				Log.out.println();
+				System.out.println();
 			}
 		}
 
@@ -260,7 +259,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = -1;
 					if (debug)
 					{
-						Log.out.print("#");
+						System.out.print("#");
 					}
 				}
 				else if (a == b && b == c)
@@ -268,7 +267,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 0;
 					if (debug)
 					{
-						Log.out.print(hor ? "-" : "|");
+						System.out.print(hor ? "-" : "|");
 					}
 				}
 				else if (a == MATRIX_SIZE && b == c)
@@ -276,7 +275,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 0;
 					if (debug)
 					{
-						Log.out.print(hor ? "-" : "|");
+						System.out.print(hor ? "-" : "|");
 					}
 				}
 				else if (a == b && c == MATRIX_SIZE)
@@ -284,7 +283,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 0;
 					if (debug)
 					{
-						Log.out.print(hor ? "-" : "|");
+						System.out.print(hor ? "-" : "|");
 					}
 				}
 				else if (a < b && c < b)
@@ -292,7 +291,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 0;
 					if (debug)
 					{
-						Log.out.print(hor ? "-" : "|");
+						System.out.print(hor ? "-" : "|");
 					}
 				}
 				else if (a > b && c > b)
@@ -300,7 +299,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 0;
 					if (debug)
 					{
-						Log.out.print(hor ? "-" : "|");
+						System.out.print(hor ? "-" : "|");
 					}
 				}
 				else if (a > b && c <= b)
@@ -308,7 +307,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 1;
 					if (debug)
 					{
-						Log.out.print("/");
+						System.out.print("/");
 					}
 				}
 				else if (a >= b && c < b)
@@ -316,7 +315,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 1;
 					if (debug)
 					{
-						Log.out.print("/");
+						System.out.print("/");
 					}
 				}
 				else if (a == MATRIX_SIZE && c < b)
@@ -324,7 +323,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 1;
 					if (debug)
 					{
-						Log.out.print("/");
+						System.out.print("/");
 					}
 				}
 				else if (a > b && c == MATRIX_SIZE)
@@ -332,7 +331,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 1;
 					if (debug)
 					{
-						Log.out.print("/");
+						System.out.print("/");
 					}
 				}
 				else if (a < b && c >= b)
@@ -340,7 +339,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 2;
 					if (debug)
 					{
-						Log.out.print("\\");
+						System.out.print("\\");
 					}
 				}
 				else if (a <= b && c > b)
@@ -348,7 +347,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 2;
 					if (debug)
 					{
-						Log.out.print("\\");
+						System.out.print("\\");
 					}
 				}
 				else if (a == MATRIX_SIZE && c > b)
@@ -356,7 +355,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 2;
 					if (debug)
 					{
-						Log.out.print("\\");
+						System.out.print("\\");
 					}
 				}
 				else if (a < b && c == MATRIX_SIZE)
@@ -364,7 +363,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = 3;
 					if (debug)
 					{
-						Log.out.print("\\");
+						System.out.print("\\");
 					}
 				}
 				else if (a == MATRIX_SIZE && b == MATRIX_SIZE && c == MATRIX_SIZE)
@@ -372,7 +371,7 @@ class CurvatureClassifier
 					slopes[orientation][index] = -1;
 					if (debug)
 					{
-						Log.out.print("#");
+						System.out.print("#");
 					}
 				}
 				else
@@ -380,13 +379,13 @@ class CurvatureClassifier
 					slopes[orientation][index] = -1;
 					if (debug)
 					{
-						Log.out.print("?");
+						System.out.print("?");
 					}
 				}
 			}
 			if (debug)
 			{
-				Log.out.println();
+				System.out.println();
 			}
 		}
 
@@ -618,7 +617,7 @@ class CurvatureClassifier
 							}
 						};
 
-//						Log.out.println(fromX+", "+fromY+", "+toX+", "+toY);
+//						System.out.println(fromX+", "+fromY+", "+toX+", "+toY);
 						//Color c = Color.getHSBColor(orientation/8f, slope==1?0.5f:1, 1);
 						Color c = Color.getHSBColor((hor ? (slope == 1 ? -1 : 1) : slope) == 1 ? 0f : 0.5f, 1, 1);
 						g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
@@ -830,7 +829,7 @@ class CurvatureClassifier
 
 //		if (debug && "�".equals(aSymbol.mCharacter))
 //		{
-//			//Log.out.print((aSymbol.mCharacter==null?" ":aSymbol.mCharacter)+" ");
+//			//System.out.print((aSymbol.mCharacter==null?" ":aSymbol.mCharacter)+" ");
 //
 //String [][][] v = {
 //{{" 0"," 6"},{"15"," 0"},{" 0","14"}},
@@ -847,13 +846,13 @@ class CurvatureClassifier
 //
 //			for (int orientation = 0; orientation < 8; orientation++)
 //			{
-//				Log.out.println(names[orientation]);
+//				System.out.println(names[orientation]);
 //				for (int zone = 0; zone < 3; zone++)
 //				{
 //					for (int type = 0; type < 2; type++)
 //					{
 //						int s = (int)aSymbol.mCurvatureVector[orientation][type==0?1:0][zone];
-//						Log.out.println((type==0?" 1":"-1")+","+(1+orientation)+","+(1+zone)+"="+(s<10?" ":"")+s+"\t"+v[orientation][zone][type]);
+//						System.out.println((type==0?" 1":"-1")+","+(1+orientation)+","+(1+zone)+"="+(s<10?" ":"")+s+"\t"+v[orientation][zone][type]);
 //					}
 //				}
 //			}
@@ -884,9 +883,9 @@ class CurvatureClassifier
 
 		if (debug)
 		{
-			Log.out.println("");
-			Log.out.println(character + " - " + aTextBox);
-			Log.out.println("");
+			System.out.println("");
+			System.out.println(character + " - " + aTextBox);
+			System.out.println("");
 		}
 
 		extractBitmap(symbol);
@@ -1042,7 +1041,7 @@ class CurvatureClassifier
 
 			if (debug)
 			{
-				Log.out.println(cmpSymbol.mCharacter + " = " + cmpDiff);
+				System.out.println(cmpSymbol.mCharacter + " = " + cmpDiff);
 			}
 
 			Result result = new Result(cmpDiff, cmpSymbol);
@@ -1082,7 +1081,7 @@ class CurvatureClassifier
 
 //			if (aTextBox.x == 1283 && aTextBox.y == 868)
 //			{
-//				Log.out.println(symbol.mCharacter + " " + aTextBox.getIndex() + " " + score);
+//				System.out.println(symbol.mCharacter + " " + aTextBox.getIndex() + " " + score);
 //
 //				if (symbol.mCharacter.equals("0") || symbol.mCharacter.equals("C"))
 //				{
@@ -1090,26 +1089,26 @@ class CurvatureClassifier
 //					{
 //						for (int x = 0; x < MATRIX_SIZE; x++)
 //						{
-//							Log.out.printf("%3d ", symbol.mClosestPixel[y][x]);
+//							System.out.printf("%3d ", symbol.mClosestPixel[y][x]);
 //						}
-//						Log.out.println();
+//						System.out.println();
 //					}
-//					Log.out.println();
+//					System.out.println();
 //					for (int y = 0; y < MATRIX_SIZE; y++)
 //					{
 //						for (int x = 0; x < MATRIX_SIZE; x++)
 //						{
-//							Log.out.printf("%3d ", aSymbol.mClosestPixel[y][x]);
+//							System.out.printf("%3d ", aSymbol.mClosestPixel[y][x]);
 //						}
-//						Log.out.println();
+//						System.out.println();
 //					}
-//					Log.out.println();
+//					System.out.println();
 //				}
 //			}
 
 			if (debug)
 			{
-				Log.out.println(symbol.mCharacter + " = " + score);
+				System.out.println(symbol.mCharacter + " = " + score);
 			}
 
 			results.add(new Result(score, symbol));
@@ -1157,20 +1156,20 @@ class CurvatureClassifier
 
 		if (debug)
 		{
-			Log.out.println();
-			Log.out.print("    ");
+			System.out.println();
+			System.out.print("    ");
 			for (int orientation = 0; orientation < 8; orientation++)
 			{
-				Log.out.print("[");
+				System.out.print("[");
 				for (int zone = 0; zone < 3; zone++)
 				{
 					for (int type = 0; type < 2; type++)
 					{
 						int v = (int)Math.round(symbol.mCurvatureVector[orientation][type][zone]);
-						Log.out.print((v < 10 ? " " : "") + v + " ");
+						System.out.print((v < 10 ? " " : "") + v + " ");
 					}
 				}
-				Log.out.print("]");
+				System.out.print("]");
 			}
 
 			Symbol sym0 = null;
@@ -1188,31 +1187,31 @@ class CurvatureClassifier
 				}
 			}
 
-			Log.out.println();
+			System.out.println();
 			for (Symbol cmpSymbol : new Symbol[]
 			{
 				sym0, sym1
 			})
 			{
-				Log.out.println("REAL");
-				Log.out.print(cmpSymbol.mCharacter + " = ");
+				System.out.println("REAL");
+				System.out.print(cmpSymbol.mCharacter + " = ");
 				for (int orientation = 0; orientation < 8; orientation++)
 				{
-					Log.out.print("[");
+					System.out.print("[");
 					for (int zone = 0; zone < 3; zone++)
 					{
 						for (int type = 0; type < 2; type++)
 						{
 							double cmp = Math.round(cmpSymbol.mCurvatureVector[orientation][type][zone]);
-							Log.out.print((cmp < 10 ? " " : "") + (int)cmp + " ");
+							System.out.print((cmp < 10 ? " " : "") + (int)cmp + " ");
 						}
 					}
-					Log.out.print("]");
+					System.out.print("]");
 				}
-				Log.out.println();
+				System.out.println();
 			}
 
-			Log.out.println();
+			System.out.println();
 		}
 
 		for (Symbol cmpSymbol : mSymbols)
@@ -1226,14 +1225,14 @@ class CurvatureClassifier
 
 			if (debug)
 			{
-				Log.out.print(cmpSymbol.mCharacter + " = ");
+				System.out.print(cmpSymbol.mCharacter + " = ");
 			}
 
 			for (int orientation = 0; orientation < 8; orientation++)
 			{
 				if (debug)
 				{
-					Log.out.print("[");
+					System.out.print("[");
 				}
 				for (int zone = 0; zone < 3; zone++)
 				{
@@ -1253,13 +1252,13 @@ class CurvatureClassifier
 
 						if (debug)
 						{
-							Log.out.print((Math.round(d) < 10 ? " " : "") + (int)Math.round(d) + " ");
+							System.out.print((Math.round(d) < 10 ? " " : "") + (int)Math.round(d) + " ");
 						}
 					}
 				}
 				if (debug)
 				{
-					Log.out.print("]");
+					System.out.print("]");
 				}
 			}
 
@@ -1268,7 +1267,7 @@ class CurvatureClassifier
 
 			if (debug)
 			{
-				Log.out.println(" = " + cmpTotal);
+				System.out.println(" = " + cmpTotal);
 			}
 
 			Result result = new Result(cmpTotal, cmpSymbol);

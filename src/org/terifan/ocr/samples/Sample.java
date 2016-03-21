@@ -5,9 +5,7 @@ import org.terifan.ocr.OCREngine;
 import org.terifan.ocr.Resolver;
 import org.terifan.ocr.Symbol;
 import org.terifan.ocr.TextBox;
-import org.terifan.io.Streams;
 import org.terifan.ocr.SimpleResolver;
-import org.terifan.util.log.Log;
 
 
 public class Sample
@@ -16,10 +14,10 @@ public class Sample
 	{
 		try
 		{
-			Page page = new Page(Streams.fetch("d:/sample.jpg"));
+			Page page = new Page(Sample.class.getResourceAsStream("sample.png"));
 
 			OCREngine engine = new OCREngine();
-			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_courier_3.png")));
+			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial_ru_bold.png")));
 			engine.setMinSymbolWidth(8);
 			engine.setMaxSymbolWidth(23);
 			engine.setMinSymbolHeight(10);
@@ -30,8 +28,8 @@ public class Sample
 
 			engine.loadPage(0.0, 0.0, 1.0, 1.0, page);
 
-//			Log.out.println(engine.scan(0.0, 0.0, 1.0, 1.0, new WaybillResolver()));
-			Log.out.println(engine.scan(0.0, 0.0, 1.0, 1.0, new SimpleResolver()));
+//			System.out.println(engine.scan(0.0, 0.0, 1.0, 1.0, new WaybillResolver()));
+			System.out.println(engine.scan(0.0, 0.0, 1.0, 1.0, new SimpleResolver()));
 
 			page.writeDebug("d:/debug.png");
 		}

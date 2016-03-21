@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import org.terifan.util.log.Log;
 
 
 class PageSegmenter
@@ -519,7 +518,7 @@ class PageSegmenter
 					{
 						if (debug)
 						{
-							Log.out.println(w + " >= " + aMinWidth + " && " + w + " <= " + aMaxWidth + " && " + h + " >= " + aMinHeight + " && " + h + " <= " + aMaxHeight);
+							System.out.println(w + " >= " + aMinWidth + " && " + w + " <= " + aMaxWidth + " && " + h + " >= " + aMinHeight + " && " + h + " <= " + aMaxHeight);
 
 							mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 128));
 							mPage.mDebugGraphics.drawRect(x, y, w, h);

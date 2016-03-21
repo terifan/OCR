@@ -1,7 +1,6 @@
 package org.terifan.ocr;
 
 import java.awt.Insets;
-import org.terifan.util.log.Log;
 
 
 class Tools
@@ -105,19 +104,19 @@ class Tools
 
 	public static boolean compareWords(String aTemplate, String aCompare, int aMaxErrors, boolean aCaseSensitive)
 	{
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "abcdxfghijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "abcdxxfghijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "abcdxxxfghijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "abcdfghijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "abcdghijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "abcdhijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "acdeghijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "axcdeghijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "axcdexghijklmnop", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "axcdexghijklmnopxx", 10, false));
-		//Log.out.println(Tools.compareWords("abcdefghijklmnop", "axcdexghijklmn", 10, false));
-		//Log.out.println(Tools.compareWords("TOBAPHO-TPAHCIOPTHARHAKJADHARNo^", "TOBAPHO-TPARCIOPTBARHAKJADHARNO", 10, false));
-		//Log.out.println(Tools.compareWords("TOBAPHO-TPAHCIOPTHARHAKJADHARNo^", "TOBAPHO-TPHCIOP-RHAKXYZJADHARNo121271/o8", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "abcdxfghijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "abcdxxfghijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "abcdxxxfghijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "abcdfghijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "abcdghijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "abcdhijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "acdeghijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "axcdeghijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "axcdexghijklmnop", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "axcdexghijklmnopxx", 10, false));
+		//System.out.println(Tools.compareWords("abcdefghijklmnop", "axcdexghijklmn", 10, false));
+		//System.out.println(Tools.compareWords("TOBAPHO-TPAHCIOPTHARHAKJADHARNo^", "TOBAPHO-TPARCIOPTBARHAKJADHARNO", 10, false));
+		//System.out.println(Tools.compareWords("TOBAPHO-TPAHCIOPTHARHAKJADHARNo^", "TOBAPHO-TPHCIOP-RHAKXYZJADHARNo121271/o8", 10, false));
 
 		boolean debug = false;
 
@@ -136,7 +135,7 @@ class Tools
 		int err = compareWords(aTemplate, aCompare, 0, 0, aMaxErrors, 0, trimCompare);
 		if (debug)
 		{
-			Log.out.println("error=" + err);
+			System.out.println("error=" + err);
 		}
 
 		return err <= aMaxErrors;
