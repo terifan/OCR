@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 
-
 public class ImageRotator
 {
 	public static BufferedImage rotate(BufferedImage aImage, double aAngle)

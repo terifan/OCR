@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -76,7 +77,7 @@ class CurvatureClassifier
 
 		BufferedImage tmp = mPage.getRegion(box.x + borders.left, box.y + borders.top, box.x + box.width - borders.right + 1, box.y + box.height - borders.bottom + 1);
 
-		BufferedImage tmp2 = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, InterpolationMode.BICUBIC, BufferedImage.TYPE_INT_RGB);
+		BufferedImage tmp2 = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_INT_RGB);
 
 		aSymbol.mBitmap = tmp2;
 

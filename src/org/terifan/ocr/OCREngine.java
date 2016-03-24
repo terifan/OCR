@@ -389,7 +389,7 @@ public class OCREngine
 //		b |= methodName.equals("extractSlopes");
 //		b |= methodName.equals("extractCurvature");
 //		b |= methodName.equals("extractCurvatureVector");
-		b |= methodName.equals("classifySymbol");
+//		b |= methodName.equals("classifySymbol");
 //		b |= methodName.equals("classifySymbolByCurvature");
 //		b |= methodName.equals("classifySymbolByTemplate");
 //		b |= methodName.equals("classifySymbolByContour");
