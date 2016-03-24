@@ -1,12 +1,17 @@
 package org.terifan.ocr.application;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.terifan.ocr.Page;
 import org.terifan.ocr.OCREngine;
@@ -60,6 +65,18 @@ public class Application
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 			buildTree(root, engine.getTextBoxes());
 			JTree tree = new JTree(root);
+			tree.addTreeSelectionListener(e ->
+			{
+				TextBox tb = (TextBox)((DefaultMutableTreeNode)e.getPath().getLastPathComponent()).getUserObject();
+				if (tb != null)
+				{
+					imagePane.setImageOverlay(g->{
+						g.setColor(Color.RED);
+						g.fill(tb);
+					});
+					imagePane.repaint();
+				}
+			});
 
 			JPanel controlPane = new JPanel(new BorderLayout());
 			controlPane.add(new JScrollPane(tree), BorderLayout.CENTER);
@@ -88,7 +105,7 @@ public class Application
 	{
 		for (TextBox textBox : aTextBoxes)
 		{
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(textBox.toString());
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(textBox);
 			aNode.add(node);
 
 			buildTree(aNode, textBox.getChildren());

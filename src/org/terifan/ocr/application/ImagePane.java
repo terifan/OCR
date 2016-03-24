@@ -6,7 +6,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -17,6 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.IOException;
@@ -47,6 +47,8 @@ class ImagePane extends JPanel
 	private Point mSelectionStartOffset;
 	private ImageFilter mImageFilter;
 	private InterpreterTool mInterpreterTool;
+	private Overlay mViewOverlay;
+	private Overlay mImageOverlay;
 
 
 	static
@@ -95,6 +97,19 @@ class ImagePane extends JPanel
 	{
 		mDoScaleToFillView = true;
 	}
+
+
+	public void setViewOverlay(Overlay aViewOverlay)
+	{
+		mViewOverlay = aViewOverlay;
+	}
+
+
+	public void setImageOverlay(Overlay aImageOverlay)
+	{
+		mImageOverlay = aImageOverlay;
+	}
+
 
 
 	@Override
@@ -162,7 +177,9 @@ class ImagePane extends JPanel
 	@Override
 	public void paintComponent(Graphics aGraphics)
 	{
-		drawBackground(aGraphics);
+		Graphics2D g = (Graphics2D)aGraphics;
+
+		drawBackground(g);
 
 		int fw = getWidth();
 		int fh = getHeight();
@@ -205,22 +222,38 @@ class ImagePane extends JPanel
 			int x = (int) (0.5 * fw - 0.5 * w + mOffsetX);
 			int y = (int) (0.5 * fh - 0.5 * h + mOffsetY);
 
-			((Graphics2D) aGraphics).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-			aGraphics.drawImage(mScaledImage == null || mScale > 1 ? mImage : mScaledImage, x, y, w, h, null);
+			g.drawImage(mScaledImage == null || mScale > 1 ? mImage : mScaledImage, x, y, w, h, null);
 
 			if (mRectangle != null && mInterpreterTool != null)
 			{
-				aGraphics.setColor(new Color(0, 64, 255, 128));
-				aGraphics.fillRect(mRectangle.x, mRectangle.y, mRectangle.width, mRectangle.height);
-				aGraphics.setColor(Color.BLUE);
-				aGraphics.drawRect(mRectangle.x, mRectangle.y, mRectangle.width, mRectangle.height);
+				g.setColor(new Color(0, 64, 255, 128));
+				g.fillRect(mRectangle.x, mRectangle.y, mRectangle.width, mRectangle.height);
+				g.setColor(Color.BLUE);
+				g.drawRect(mRectangle.x, mRectangle.y, mRectangle.width, mRectangle.height);
 			}
 
 			if (mScale < 1 && mScaleChanged)
 			{
 				mImageFilter = new ImageFilter(w, h);
 				mImageFilter.start();
+			}
+
+			if (mImageOverlay != null)
+			{
+				AffineTransform transform = g.getTransform();
+				AffineTransform at = new AffineTransform();
+				at.translate(x, y);
+				at.scale(mScale, mScale);
+				g.setTransform(at);
+				mImageOverlay.render(g);
+				g.setTransform(transform);
+			}
+
+			if (mViewOverlay != null)
+			{
+				mViewOverlay.render(g);
 			}
 		}
 	}
@@ -608,5 +641,11 @@ class ImagePane extends JPanel
 	{
 		mRectangle = null;
 		repaint();
+	}
+
+
+	public interface Overlay
+	{
+		void render(Graphics2D aGraphics);
 	}
 }
