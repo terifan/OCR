@@ -2,16 +2,12 @@ package org.terifan.ocr.application;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.terifan.ocr.Page;
 import org.terifan.ocr.OCREngine;
@@ -71,8 +67,17 @@ public class Application
 				if (tb != null)
 				{
 					imagePane.setImageOverlay(g->{
-						g.setColor(Color.RED);
-						g.fill(tb);
+//						g.setColor(new Color(255,0,0,128));
+//						g.fill(tb);
+						g.setColor(new Color(255,255,0,128));
+						for (TextBox tb1 : tb.getChildren())
+						{
+							g.fill(tb1);
+//							g.drawLine(tb1.x, tb1.y, tb1.x+tb1.width, tb1.y);
+//							g.drawLine(tb1.x, tb1.y, tb1.x, tb1.y+tb1.height);
+//							g.drawLine(tb1.x, tb1.y+tb1.height, tb1.x+tb1.width, tb1.y+tb1.height);
+//							g.drawLine(tb1.x+tb1.width, tb1.y, tb1.x+tb1.width, tb1.y+tb1.height);
+						}
 					});
 					imagePane.repaint();
 				}
@@ -108,7 +113,7 @@ public class Application
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(textBox);
 			aNode.add(node);
 
-			buildTree(aNode, textBox.getChildren());
+//			buildTree(node, textBox.getChildren());
 		}
 	}
 }

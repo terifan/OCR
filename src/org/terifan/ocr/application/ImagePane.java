@@ -222,7 +222,7 @@ class ImagePane extends JPanel
 			int x = (int) (0.5 * fw - 0.5 * w + mOffsetX);
 			int y = (int) (0.5 * fh - 0.5 * h + mOffsetY);
 
-			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+//			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
 			g.drawImage(mScaledImage == null || mScale > 1 ? mImage : mScaledImage, x, y, w, h, null);
 
