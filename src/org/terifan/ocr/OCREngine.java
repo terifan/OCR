@@ -396,4 +396,10 @@ public class OCREngine
 
 		return b;
 	}
+
+
+	public ArrayList<TextBox> getTextBoxes()
+	{
+		return mTextBoxes;
+	}
 }
