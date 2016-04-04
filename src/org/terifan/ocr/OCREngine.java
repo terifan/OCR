@@ -8,10 +8,10 @@ import java.util.ArrayList;
 
 public class OCREngine
 {
-	private CurvatureClassifier mCurvatureClassifier;
 	private Page mPage;
 	private Resolver mResolver;
 	private ArrayList<TextBox> mTextBoxes;
+	private CurvatureClassifier mCurvatureClassifier;
 
 	private double mCharacterAspectRatio;
 	private double mCharacterSpacing;
@@ -54,7 +54,7 @@ public class OCREngine
 	{
 		Page tmp = mPage;
 		mCurvatureClassifier.learn(aFontName, aPage, aAlphabet);
-		mCurvatureClassifier.init(tmp);
+		mCurvatureClassifier.setPage(tmp);
 	}
 
 
@@ -194,7 +194,7 @@ public class OCREngine
 	public void loadPage(double aFromX, double aFromY, double aToX, double aToY, Page aPage)
 	{
 		mPage = aPage;
-		mCurvatureClassifier.init(aPage);
+		mCurvatureClassifier.setPage(aPage);
 
 		if (mCharacterSpacingExact != 0)
 		{

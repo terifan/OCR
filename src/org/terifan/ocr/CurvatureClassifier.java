@@ -2,7 +2,6 @@ package org.terifan.ocr;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Polygon;
@@ -43,7 +42,7 @@ public class CurvatureClassifier
 	}
 
 
-	public void init(Page aPage)
+	public void setPage(Page aPage)
 	{
 		mPage = aPage;
 	}
@@ -60,18 +59,20 @@ public class CurvatureClassifier
 			throw new IllegalArgumentException("Alphabet must contain " + aAlphabet.length() + " characters");
 		}
 
-		init(aPage);
+		mPage = aPage;
 
 		PageSegmenter segmenter = new PageSegmenter();
-
 		segmenter.mLearning = true;
+
+		int GW = 71;
+		int GH = 69;
 
 		ArrayList<TextBox> textBoxes = new ArrayList<>();
 		for (int y = 0; y < 6; y++)
 		{
 			for (int x = 0; x < 13; x++)
 			{
-				textBoxes.add(new TextBox(new Rectangle(1 + 71 * x, 1 + 69 * y, 69, 67)));
+				textBoxes.add(new TextBox(new Rectangle(GW * x + 1, GH * y + 1, GW - 2, GH - 2)));
 			}
 		}
 
@@ -98,9 +99,9 @@ public class CurvatureClassifier
 
 		BufferedImage tmp = mPage.getRegion(box.x + borders.left, box.y + borders.top, box.x + box.width - borders.right + 1, box.y + box.height - borders.bottom + 1);
 
-		BufferedImage tmp2 = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_BYTE_GRAY);
+		tmp = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_BYTE_GRAY);
 
-		aSymbol.setBitmap(tmp2);
+		aSymbol.setBitmap(tmp);
 	}
 
 

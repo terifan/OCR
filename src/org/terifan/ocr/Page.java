@@ -7,7 +7,10 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 
 public class Page implements Cloneable
@@ -75,7 +78,7 @@ public class Page implements Cloneable
 
 	public boolean isBlack(int x, int y)
 	{
-		return mRaster[mWidth * y + x] > 0; // 0-127 black
+		return mRaster[mWidth * y + x] >= 0; // 0-127 black
 	}
 
 
