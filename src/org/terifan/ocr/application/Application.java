@@ -22,13 +22,15 @@ public class Application
 	{
 		try
 		{
-			Page page = new Page(Application.class.getResourceAsStream("samples/sample_01.png"));
+//			Page page = new Page(Application.class.getResourceAsStream("samples/sample_01.png"));
+			Page page = new Page(Application.class.getResourceAsStream("samples/sample_02.png"));
 
 			page.eraseLines(0.5, 0);
 			page.updateImage();
 
 			OCREngine engine = new OCREngine();
-			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial_ru_bold.png")));
+//			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial_ru_bold.png")));
+			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial.png")));
 			engine.setMinSymbolWidth(8);
 			engine.setMaxSymbolWidth(23);
 			engine.setMinSymbolHeight(10);
