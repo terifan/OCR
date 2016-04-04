@@ -111,7 +111,6 @@ class ImagePane extends JPanel
 	}
 
 
-
 	@Override
 	public Dimension getPreferredSize()
 	{
