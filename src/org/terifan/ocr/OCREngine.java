@@ -8,8 +8,6 @@ import java.util.ArrayList;
 
 public class OCREngine
 {
-	public final static int DEBUG_COMPONENT = 1;
-
 	private CurvatureClassifier mCurvatureClassifier;
 	private Page mPage;
 	private Resolver mResolver;

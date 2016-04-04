@@ -3,14 +3,12 @@ package org.terifan.ocr;
 import java.awt.Insets;
 import java.awt.Polygon;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
 
 
 public class Symbol
 {
+	private BufferedImage mBitmap;
 	protected Insets mBorders;
-	protected BufferedImage mBitmap;
 	protected String mFontName;
 	protected String mCharacter;
 	protected TextBox mTextBox;
@@ -30,33 +28,32 @@ public class Symbol
 	}
 
 
+	public BufferedImage getBitmap()
+	{
+		return mBitmap;
+	}
+
+
+	public void setBitmap(BufferedImage aBitmap)
+	{
+		mBitmap = aBitmap;
+	}
+
+
 	public String getCharacter()
 	{
 		return mCharacter;
 	}
 
 
-	public int getRGB(int x, int y)
+	public byte getGray(int x, int y)
 	{
 		if (x < 0 || y < 0 || x >= mBitmap.getWidth() || y >= mBitmap.getHeight())
 		{
-			return -1;
+			return Page.WHITE;
 		}
 
-		return mBitmap.getRGB(x,y);
-	}
-
-
-	public int getGray(int x, int y)
-	{
-		if (x < 0 || y < 0 || x >= mBitmap.getWidth() || y >= mBitmap.getHeight())
-		{
-			return -1;
-		}
-
-		int c = mBitmap.getRGB(x,y);
-
-		return ((0xff & (c >> 16)) + (0xff & (c >> 8)) + (0xff & c)) / 3;
+		return (byte)mBitmap.getRGB(x,y);
 	}
 
 
@@ -64,19 +61,6 @@ public class Symbol
 	public String toString()
 	{
 		return mCharacter;
-	}
-
-
-	public void write(String aFile)
-	{
-		try
-		{
-			ImageIO.write(mBitmap, "png", new File(aFile));
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
 	}
 
 

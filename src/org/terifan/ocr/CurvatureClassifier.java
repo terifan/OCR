@@ -98,46 +98,9 @@ public class CurvatureClassifier
 
 		BufferedImage tmp = mPage.getRegion(box.x + borders.left, box.y + borders.top, box.x + box.width - borders.right + 1, box.y + box.height - borders.bottom + 1);
 
-		BufferedImage tmp2 = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_INT_RGB);
+		BufferedImage tmp2 = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_BYTE_GRAY);
 
-		aSymbol.mBitmap = tmp2;
-
-//		if (box.x == 1283 && box.y == 868)
-//		{
-//			try
-//			{
-//				if (aSymbol.mCharacter != null)
-//				{
-//					String c = aSymbol.mCharacter.replace("\"", "").replace(":", "").replace("?", "").replace("<", "").replace(">", "").replace("\\", "").replace("/", "").replace("*", "");
-//					if (c.charAt(0) >= 'a' && c.charAt(0) <= 'z')
-//					{
-//						c = "L" + Character.toUpperCase(c.charAt(0));
-//					}
-//					else if (c.charAt(0) >= 'A' && c.charAt(0) <= 'Z')
-//					{
-//						c = "U" + c;
-//					}
-//					else if (c.charAt(0) < 'A' || c.charAt(0) >= 'z')
-//					{
-//						c = "";
-//					}
-//					ImageIO.write(tmp2, "png", new File("d:/temp/bitmap_alphabet/" + c + "_" + box.y + "_" + box.x + ".png"));
-//				}
-//				else
-//				{
-//					System.out.println(borders);
-//
-//					BufferedImage tmp3 = mPage.getRegion(box.x + borders.left - 2, box.y + borders.top - 2, box.x + box.width - borders.right + 1 + 4, box.y + box.height - borders.bottom + 1 + 4);
-//
-//					ImageIO.write(tmp, "png", new File("d:/temp/bitmap_symbols/" + box.y + "_" + box.x + "_a.png"));
-//					ImageIO.write(tmp2, "png", new File("d:/temp/bitmap_symbols/" + box.y + "_" + box.x + "_b.png"));
-//					ImageIO.write(tmp3, "png", new File("d:/temp/bitmap_symbols/" + box.y + "_" + box.x + "_c.png"));
-//				}
-//			}
-//			catch (Exception e)
-//			{
-//			}
-//		}
+		aSymbol.setBitmap(tmp2);
 	}
 
 
@@ -159,7 +122,7 @@ public class CurvatureClassifier
 	{
 		boolean debug = OCREngine.isDebugEnabled(mPage);
 
-		BufferedImage image = aSymbol.mBitmap;
+		BufferedImage image = aSymbol.getBitmap();
 
 		double[][] contour = new double[8][MATRIX_SIZE];
 		int[][] count = new int[8][MATRIX_SIZE];
@@ -417,25 +380,28 @@ public class CurvatureClassifier
 
 	private void extractCurvature(Symbol aSymbol)
 	{
-		boolean debug = OCREngine.isDebugEnabled(mPage);
+		boolean debug = true; //OCREngine.isDebugEnabled(mPage);
 
 		int scale = 8;
 		int padd = 16;
 
 		BufferedImage output = null;
 		Graphics2D g = null;
+
 		if (debug)
 		{
 			output = new BufferedImage(4 * MATRIX_SIZE * scale + padd + 4 * padd, 2 * MATRIX_SIZE * scale + padd + 2 * padd, BufferedImage.TYPE_INT_RGB);
-			g = (Graphics2D)output.getGraphics();
+
+			g = output.createGraphics();
 			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, output.getWidth(), output.getHeight());
+
 			for (int y = 0; y < 2; y++)
 			{
 				for (int x = 0; x < 4; x++)
 				{
 					g.setColor(new Color(255, 255, 255, 240));
-					g.drawImage(aSymbol.mBitmap, padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale, MATRIX_SIZE * scale, null);
+					g.drawImage(aSymbol.getBitmap(), padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale, MATRIX_SIZE * scale, null);
 
 					if (y == 1)
 					{
@@ -639,8 +605,6 @@ public class CurvatureClassifier
 							}
 						};
 
-//						System.out.println(fromX+", "+fromY+", "+toX+", "+toY);
-						//Color c = Color.getHSBColor(orientation/8f, slope==1?0.5f:1, 1);
 						Color c = Color.getHSBColor((hor ? (slope == 1 ? -1 : 1) : slope) == 1 ? 0f : 0.5f, 1, 1);
 						g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
 						g.fillPolygon(points[0], points[1], 3);
@@ -750,8 +714,6 @@ public class CurvatureClassifier
 					throw new IllegalStateException(e);
 				}
 			}
-
-			//if("�".equals(aSymbol.mCharacter))System.exit(0);
 		}
 	}
 
@@ -773,79 +735,6 @@ public class CurvatureClassifier
 				Polygon p = polygons[orientation][i];
 
 				int type = aSymbol.mCurvatureSlopes[orientation][i] == -1 ? 0 : 1;
-
-//				double x0, y0, x3, y3;
-//
-//				if (hor)
-//				{
-//					x0 = p.ypoints[0];
-//					y0 = p.xpoints[0];
-//					x3 = p.ypoints[1];
-//					y3 = p.xpoints[1];
-//				}
-//				else
-//				{
-//					x0 = p.xpoints[0];
-//					y0 = p.ypoints[0];
-//					x3 = p.xpoints[1];
-//					y3 = p.ypoints[1];
-//				}
-//
-//				double fx = 1;
-//				double fy = Math.abs((y3 - y0) / (x3 - x0));
-//
-//				double d1 = 1 * ONETHIRD - x0;
-//				double d2 = 2 * ONETHIRD - x0;
-//
-//				double x1 = x0 + fx * d1;
-//				double y1 = y0 + fy * d1;
-//
-//				double x2 = x0 + fx * d2;
-//				double y2 = y0 + fy * d2;
-//
-//				double area1 = Math.abs((x1 - x0) * (y1 - y0)) / 2.0;
-//				double area2 = Math.abs((x2 - x0) * (y2 - y0)) / 2.0;
-//				double area3 = Math.abs((x3 - x0) * (y3 - y0)) / 2.0;
-//
-//				if (!hor)
-//				{
-//					area1 = Math.abs((x1 - x0) * (y3 - y0)) - area1;
-//					area2 = Math.abs((x2 - x0) * (y3 - y0)) - area2;
-//					area3 = Math.abs((x3 - x0) * (y3 - y0)) - area3;
-//				}
-//
-//				if (x0 <= ONETHIRD && x3 <= ONETHIRD)
-//				{
-//					fill[orientation][type][0] += area3;
-//				}
-//				else if (x0 > ONETHIRD && x3 < 2 * ONETHIRD)
-//				{
-//					fill[orientation][type][1] += area3;
-//				}
-//				else if (x0 >= 2 * ONETHIRD && x3 >= 2 * ONETHIRD)
-//				{
-//					fill[orientation][type][2] += area3;
-//				}
-//				else if (x0 <= ONETHIRD && x3 < 2 * ONETHIRD)
-//				{
-//					fill[orientation][type][0] += area1;
-//					fill[orientation][type][1] += area3 - area1;
-//				}
-//				else if (x0 <= ONETHIRD && x3 >= 2 * ONETHIRD)
-//				{
-//					fill[orientation][type][0] += area1;
-//					fill[orientation][type][1] += area2 - area1;
-//					fill[orientation][type][2] += area3 - area2;
-//				}
-//				else if (x0 < 2 * ONETHIRD && x3 >= 2 * ONETHIRD)
-//				{
-//					fill[orientation][type][1] += area2;
-//					fill[orientation][type][2] += area3 - area2;
-//				}
-//				else
-//				{
-//					throw new RuntimeException();
-//				}
 
 				double area1, area2, area3;
 
@@ -893,25 +782,7 @@ public class CurvatureClassifier
 			}
 		}
 
-//		System.out.println(n+"\t"+x0+"-"+x1+"\t"+y0+"-"+y1+"\t\t"+p.xpoints[0]+","+p.ypoints[0]+"\t"+p.xpoints[1]+","+p.ypoints[1]+"\t"+p.xpoints[2]+","+p.ypoints[2]);
-
 		return n;
-	}
-
-
-	private double min(double a, double b, double c)
-	{
-		if (a < b && a < c) return a;
-		if (b < c) return b;
-		return c;
-	}
-
-
-	private double max(double a, double b, double c)
-	{
-		if (a > b && a > c) return a;
-		if (b > c) return b;
-		return c;
 	}
 
 
@@ -945,7 +816,7 @@ public class CurvatureClassifier
 
 		extractBitmap(symbol);
 
-		if (new Page(symbol.mBitmap).getRectFillFactor(0, 0, MATRIX_SIZE, MATRIX_SIZE) == 0)
+		if (new Page(symbol.getBitmap()).getRectFillFactor(0, 0, MATRIX_SIZE, MATRIX_SIZE) == 0)
 		{
 			return;
 		}
@@ -978,90 +849,11 @@ public class CurvatureClassifier
 		extractCurvatureVector(symbol);
 		extractTemplateDistance(symbol);
 
-		ArrayList<Result> results1 = classifySymbolByCurvature(symbol, aTextBox, aResolver);
-//		ArrayList<Result> results2 = classifySymbolByTemplate(symbol, aTextBox, aResolver);
-//		ArrayList<Result> results3 = classifySymbolByContour(symbol, aTextBox, aResolver);
+		ArrayList<Result> results = classifySymbolByCurvature(symbol, aTextBox, aResolver);
 
-//		if (results1.isEmpty() || results2.isEmpty() || results3.isEmpty())
-//		{
-//			return null;
-//		}
+		Collections.sort(results);
 
-		Collections.sort(results1);
-//		Collections.sort(results2);
-//		Collections.sort(results3);
-
-		Result r1 = results1.get(0);
-//		Result r2 = results1.get(1);
-//		Result r3 = results1.get(2);
-
-//		boolean guessed = false;
-		Result result = r1;
-
-
-
-//		Result result;
-//		boolean guessed = false;
-//
-//		if (r1.compare(r2) && r1.compare(r3))
-//		{
-//			result = new Result((r1.mScore + r2.mScore + r3.mScore) / 3, r1.mSymbol);
-//		}
-//		else if (r1.compare(r2))
-//		{
-//			result = new Result((r1.mScore + r2.mScore) / 2, r1.mSymbol);
-//		}
-//		else if (r1.compare(r3))
-//		{
-//			result = new Result((r1.mScore + r3.mScore) / 2, r1.mSymbol);
-//		}
-//		else if (r2.compare(r3))
-//		{
-//			result = new Result((r2.mScore + r3.mScore) / 2, r2.mSymbol);
-//		}
-//		else
-//		{
-//			guessed = true;
-//			result = new Result(0, null);
-//
-//			for (int i = 0; i < results1.size(); i++)
-//			{
-//				double sa = results1.get(i).mScore;
-//				double sb = results2.get(i).mScore;
-//				double sc = results3.get(i).mScore;
-//
-//				double avg = (sa + sb + sc) / 3.0;
-//
-//				if (!results1.get(i).mSymbol.mCharacter.equals(results2.get(i).mSymbol.mCharacter) || !results1.get(i).mSymbol.mCharacter.equals(results3.get(i).mSymbol.mCharacter))
-//				{
-//					throw new RuntimeException();
-//				}
-//
-//				if (avg > result.mScore)
-//				{
-//					result = new Result(avg, results1.get(i).mSymbol);
-//				}
-//			}
-//		}
-
-		if (debug || /*mPage.isDebug() &&*/ mPrintCharacters)
-		{
-			mPage.mDebugGraphics.setFont(new Font("arial", Font.PLAIN, 10));
-			mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 64));
-			mPage.mDebugGraphics.drawString("" + r1.mSymbol, aTextBox.x, aTextBox.y - 5);
-			mPage.mDebugGraphics.setColor(new Color(0, 0, 255, 64));
-			mPage.mDebugGraphics.drawString("" + r1.mSymbol.mDefCharacter, aTextBox.x, aTextBox.y - 14);
-
-//			mPage.mDebugGraphics.setFont(new Font("arial", Font.PLAIN, 10));
-//			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r1.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r1.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
-//			mPage.mDebugGraphics.drawString("" + r1.mSymbol, aTextBox.x, aTextBox.y - 23);
-//			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r2.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r2.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
-//			mPage.mDebugGraphics.drawString("" + r2.mSymbol, aTextBox.x, aTextBox.y - 14);
-//			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r3.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r3.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
-//			mPage.mDebugGraphics.drawString("" + r3.mSymbol, aTextBox.x, aTextBox.y - 5);
-		}
-
-		return result;
+		return results.get(0);
 	}
 
 
@@ -1133,33 +925,6 @@ public class CurvatureClassifier
 			score /= MATRIX_SIZE * MATRIX_SIZE * MATRIX_SIZE;
 			score = 1 - score;
 
-//			if (aTextBox.x == 1283 && aTextBox.y == 868)
-//			{
-//				System.out.println(symbol.mCharacter + " " + aTextBox.getIndex() + " " + score);
-//
-//				if (symbol.mCharacter.equals("0") || symbol.mCharacter.equals("C"))
-//				{
-//					for (int y = 0; y < MATRIX_SIZE; y++)
-//					{
-//						for (int x = 0; x < MATRIX_SIZE; x++)
-//						{
-//							System.out.printf("%3d ", symbol.mClosestPixel[y][x]);
-//						}
-//						System.out.println();
-//					}
-//					System.out.println();
-//					for (int y = 0; y < MATRIX_SIZE; y++)
-//					{
-//						for (int x = 0; x < MATRIX_SIZE; x++)
-//						{
-//							System.out.printf("%3d ", aSymbol.mClosestPixel[y][x]);
-//						}
-//						System.out.println();
-//					}
-//					System.out.println();
-//				}
-//			}
-
 			if (debug)
 			{
 				System.out.println(symbol.mCharacter + " = " + score);
@@ -1174,7 +939,7 @@ public class CurvatureClassifier
 
 	private int findClosestPixel(Symbol aSymbol, int x, int y)
 	{
-		int T = 16;
+		byte T = Page.THRESHOLD;
 
 		for (int s = 0; s < MATRIX_SIZE; s++)
 		{

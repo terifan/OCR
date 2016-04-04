@@ -14,6 +14,7 @@ public class Page implements Cloneable
 {
 	public final static byte BLACK = 0;
 	public final static byte WHITE = (byte)255;
+	public final static byte THRESHOLD = (byte)128;
 
 	public Graphics2D mGraphics;
 	private BufferedImage mImage;
