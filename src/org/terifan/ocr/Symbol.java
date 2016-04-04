@@ -21,6 +21,7 @@ public class Symbol
 	protected double [][][] mCurvatureVector; // 8 orientations, 2 types (inclining/declining), 3 zones (upper/center/lower)
 	protected int [][] mClosestPixel;
 	protected double mCurvatureWeight;
+	protected String mDefCharacter;
 
 
 	public Symbol(TextBox aTextBox)

@@ -48,9 +48,15 @@ public class OCREngine
 
 	public void learnAlphabet(String aFontName, Page aPage)
 	{
-		Page p = mPage;
-		mCurvatureClassifier.learn(aFontName, aPage);
-		mCurvatureClassifier.init(p);
+		learnAlphabet(aFontName, aPage, null);
+	}
+
+
+	public void learnAlphabet(String aFontName, Page aPage, String aAlphabet)
+	{
+		Page tmp = mPage;
+		mCurvatureClassifier.learn(aFontName, aPage, aAlphabet);
+		mCurvatureClassifier.init(tmp);
 	}
 
 
@@ -250,11 +256,11 @@ public class OCREngine
 
 		mResolver = aResolver;
 
-		if (debug)
-		{
-			mPage.mDebugGraphics.setColor(new Color(128,128,128,96));
-			mPage.mDebugGraphics.fillRect((int)(aFromX*mPage.getWidth()), (int)(aFromY*mPage.getHeight()), (int)((aToX-aFromX)*mPage.getWidth()), (int)((aToY-aFromY)*mPage.getHeight()));
-		}
+//		if (debug)
+//		{
+//			mPage.mDebugGraphics.setColor(new Color(128,128,128,96));
+//			mPage.mDebugGraphics.fillRect((int)(aFromX*mPage.getWidth()), (int)(aFromY*mPage.getHeight()), (int)((aToX-aFromX)*mPage.getWidth()), (int)((aToY-aFromY)*mPage.getHeight()));
+//		}
 
 		ArrayList<TextBox> results = new ArrayList<>();
 
@@ -343,27 +349,6 @@ public class OCREngine
 	}
 
 
-//	private BufferedImage trans(BufferedImage aImage)
-//	{
-//		BufferedImage tmp = new BufferedImage(aImage.getWidth(), aImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-//
-//		for (int y = 0; y < aImage.getHeight(); y++)
-//		{
-//			for (int x = 0; x < aImage.getWidth(); x++)
-//			{
-//				int c = aImage.getRGB(x, y);
-//				c = (((c >> 16) & 255) + ((c >> 8) & 255) + (c & 255)) / 3;
-//				if (c < 64)
-//				{
-//					tmp.setRGB(x, y, 0xff0080ff);
-//				}
-//			}
-//		}
-//
-//		return tmp;
-//	}
-
-
 	public static boolean isDebugEnabled(Page aPage)
 	{
 		if (aPage.mDebugGraphics == null)
@@ -374,27 +359,40 @@ public class OCREngine
 		StackTraceElement[] stackTrace = new Exception().getStackTrace();
 		String methodName = stackTrace[1].getMethodName();
 
-//		Log.out.println(methodName);
+		switch (methodName)
+		{
+			case "-":
+			case "scan":
+			case "classifySymbol":
 
-		boolean b = false;
+//				return true;
 
-//		b |= methodName.equals("scanPage");
-//		b |= methodName.equals("splitTextBox");
-//		b |= methodName.equals("getCharacterRanges");
-//		b |= methodName.equals("splitCharacter");
-//		b |= methodName.equals("scanBox");
-//		b |= methodName.equals("findCharacterRectangles");
-//		b |= methodName.equals("findTextRectangles");
-//		b |= methodName.equals("extractContour");
-//		b |= methodName.equals("extractSlopes");
-//		b |= methodName.equals("extractCurvature");
-//		b |= methodName.equals("extractCurvatureVector");
-//		b |= methodName.equals("classifySymbol");
-//		b |= methodName.equals("classifySymbolByCurvature");
-//		b |= methodName.equals("classifySymbolByTemplate");
-//		b |= methodName.equals("classifySymbolByContour");
+			case "extractCurvature":
+			case "findCharacterRectangles":
+			case "findTextRectangles":
+			case "scanBox":
+			case "splitTextBox":
+			case "scanPage":
+			case "getCharacterRanges":
+			case "splitCharacter":
+			case "extractContour":
+			case "extractSlopes":
+			case "extractCurvatureVector":
+			case "classifySymbolByCurvature":
+			case "classifySymbolByTemplate":
+			case "classifySymbolByContour":
+			case "learnSymbol":
+				return false;
+			default:
+				System.out.println("debugable method: " + methodName);
+				return false;
+		}
+	}
 
-		return b;
+
+	public void setPrintCharacters(boolean aPrintCharacters)
+	{
+		mCurvatureClassifier.setPrintCharacters(aPrintCharacters);
 	}
 
 

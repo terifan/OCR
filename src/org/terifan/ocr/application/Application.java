@@ -31,11 +31,11 @@ public class Application
 			OCREngine engine = new OCREngine();
 //			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial_ru_bold.png")));
 			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial.png")));
-			engine.setMinSymbolWidth(8);
-			engine.setMaxSymbolWidth(23);
+			engine.setMinSymbolWidth(2);
+			engine.setMaxSymbolWidth(30);
 			engine.setMinSymbolHeight(10);
-			engine.setMaxSymbolHeight(25);
-			engine.setCharacterSpacingExact(10);
+			engine.setMaxSymbolHeight(35);
+			engine.setCharacterSpacingFraction(0.25);
 
 			page.initDebug();
 

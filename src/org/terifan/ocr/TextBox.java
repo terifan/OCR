@@ -79,4 +79,15 @@ public class TextBox extends Rectangle
 	{
 		return new Rectangle(x, y, width, height);
 	}
+
+
+	public String getDefaultString()
+	{
+		StringBuilder word = new StringBuilder();
+		for (Result r : mResults)
+		{
+			word.append(r.mSymbol.mDefCharacter);
+		}
+		return word.toString();
+	}
 }

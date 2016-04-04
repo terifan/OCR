@@ -1,7 +1,7 @@
 package org.terifan.ocr;
 
 
-public class Result
+public class Result implements Comparable<Result>
 {
 	protected Symbol mSymbol;
 	protected double mScore;
@@ -30,5 +30,12 @@ public class Result
 	public Symbol getSymbol()
 	{
 		return mSymbol;
+	}
+
+
+	@Override
+	public int compareTo(Result aOther)
+	{
+		return Double.compare(mScore, aOther.mScore);
 	}
 }

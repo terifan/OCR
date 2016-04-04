@@ -12,15 +12,22 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.imageio.ImageIO;
 
 
-class CurvatureClassifier
+public class CurvatureClassifier
 {
 	private final static int BILEVEL_THRESHOLD = 128;
 	private final static int MATRIX_SIZE = 16;
+	private final static double ONE_THIRD_MATRIX = MATRIX_SIZE / 3.0;
+	public final static String DEFAULT_ALPHABET =
+		  "ABCDEFGHIJKLM" + "NOPQRSTUVWXYZ"
+		+ "abcdefghijklm" + "nopqrstuvwxyz"
+		+ "0123456789@+'" + "/\\\"*.-:,&()=*";
 
 	private ArrayList<Symbol> mSymbols;
+	private boolean mPrintCharacters;
 	private Page mPage;
 
 
@@ -30,21 +37,35 @@ class CurvatureClassifier
 	}
 
 
+	public void setPrintCharacters(boolean aPrintCharacters)
+	{
+		mPrintCharacters = aPrintCharacters;
+	}
+
+
 	public void init(Page aPage)
 	{
 		mPage = aPage;
 	}
 
 
-	public void learn(String aFontName, Page aPage)
+	public void learn(String aFontName, Page aPage, String aAlphabet)
 	{
+		if (aAlphabet == null)
+		{
+			aAlphabet = DEFAULT_ALPHABET;
+		}
+		if (aAlphabet.length() != DEFAULT_ALPHABET.length())
+		{
+			throw new IllegalArgumentException("Alphabet must contain " + aAlphabet.length() + " characters");
+		}
+
 		init(aPage);
 
 		PageSegmenter segmenter = new PageSegmenter();
 
 		segmenter.mLearning = true;
 
-//		ArrayList<TextBox> textBoxes = segmenter.scanPage(0, 0, 1, 1, aPage, 1.4, 0, 0, 100, 75);
 		ArrayList<TextBox> textBoxes = new ArrayList<>();
 		for (int y = 0; y < 6; y++)
 		{
@@ -56,7 +77,7 @@ class CurvatureClassifier
 
 		for (TextBox box : textBoxes)
 		{
-			learnSymbol(aFontName, box);
+			learnSymbol(aFontName, box, DEFAULT_ALPHABET, aAlphabet);
 		}
 	}
 
@@ -753,117 +774,148 @@ class CurvatureClassifier
 
 				int type = aSymbol.mCurvatureSlopes[orientation][i] == -1 ? 0 : 1;
 
-				double x0, y0, x3, y3;
+//				double x0, y0, x3, y3;
+//
+//				if (hor)
+//				{
+//					x0 = p.ypoints[0];
+//					y0 = p.xpoints[0];
+//					x3 = p.ypoints[1];
+//					y3 = p.xpoints[1];
+//				}
+//				else
+//				{
+//					x0 = p.xpoints[0];
+//					y0 = p.ypoints[0];
+//					x3 = p.xpoints[1];
+//					y3 = p.ypoints[1];
+//				}
+//
+//				double fx = 1;
+//				double fy = Math.abs((y3 - y0) / (x3 - x0));
+//
+//				double d1 = 1 * ONETHIRD - x0;
+//				double d2 = 2 * ONETHIRD - x0;
+//
+//				double x1 = x0 + fx * d1;
+//				double y1 = y0 + fy * d1;
+//
+//				double x2 = x0 + fx * d2;
+//				double y2 = y0 + fy * d2;
+//
+//				double area1 = Math.abs((x1 - x0) * (y1 - y0)) / 2.0;
+//				double area2 = Math.abs((x2 - x0) * (y2 - y0)) / 2.0;
+//				double area3 = Math.abs((x3 - x0) * (y3 - y0)) / 2.0;
+//
+//				if (!hor)
+//				{
+//					area1 = Math.abs((x1 - x0) * (y3 - y0)) - area1;
+//					area2 = Math.abs((x2 - x0) * (y3 - y0)) - area2;
+//					area3 = Math.abs((x3 - x0) * (y3 - y0)) - area3;
+//				}
+//
+//				if (x0 <= ONETHIRD && x3 <= ONETHIRD)
+//				{
+//					fill[orientation][type][0] += area3;
+//				}
+//				else if (x0 > ONETHIRD && x3 < 2 * ONETHIRD)
+//				{
+//					fill[orientation][type][1] += area3;
+//				}
+//				else if (x0 >= 2 * ONETHIRD && x3 >= 2 * ONETHIRD)
+//				{
+//					fill[orientation][type][2] += area3;
+//				}
+//				else if (x0 <= ONETHIRD && x3 < 2 * ONETHIRD)
+//				{
+//					fill[orientation][type][0] += area1;
+//					fill[orientation][type][1] += area3 - area1;
+//				}
+//				else if (x0 <= ONETHIRD && x3 >= 2 * ONETHIRD)
+//				{
+//					fill[orientation][type][0] += area1;
+//					fill[orientation][type][1] += area2 - area1;
+//					fill[orientation][type][2] += area3 - area2;
+//				}
+//				else if (x0 < 2 * ONETHIRD && x3 >= 2 * ONETHIRD)
+//				{
+//					fill[orientation][type][1] += area2;
+//					fill[orientation][type][2] += area3 - area2;
+//				}
+//				else
+//				{
+//					throw new RuntimeException();
+//				}
+
+				double area1, area2, area3;
+
+				int v0 = (int)(0 * ONE_THIRD_MATRIX);
+				int v1 = (int)(1 * ONE_THIRD_MATRIX);
+				int v2 = (int)(2 * ONE_THIRD_MATRIX);
+				int v3 = (int)(3 * ONE_THIRD_MATRIX);
 
 				if (hor)
 				{
-					x0 = p.ypoints[0];
-					y0 = p.xpoints[0];
-					x3 = p.ypoints[1];
-					y3 = p.xpoints[1];
+					area1 = intersect(p, 0, v0, MATRIX_SIZE, v1);
+					area2 = intersect(p, 0, v1, MATRIX_SIZE, v2);
+					area3 = intersect(p, 0, v2, MATRIX_SIZE, v3);
 				}
 				else
 				{
-					x0 = p.xpoints[0];
-					y0 = p.ypoints[0];
-					x3 = p.xpoints[1];
-					y3 = p.ypoints[1];
+					area1 = intersect(p, v0, 0, v1, MATRIX_SIZE);
+					area2 = intersect(p, v1, 0, v2, MATRIX_SIZE);
+					area3 = intersect(p, v2, 0, v3, MATRIX_SIZE);
 				}
 
-				double fx = 1;
-				double fy = Math.abs((y3 - y0) / (x3 - x0));
+				fill[orientation][type][0] += area1;
+				fill[orientation][type][1] += area2;
+				fill[orientation][type][2] += area3;
+			}
+		}
+	}
 
-				double d1 = 1 * MATRIX_SIZE / 3.0 - x0;
-				double d2 = 2 * MATRIX_SIZE / 3.0 - x0;
 
-				double x1 = x0 + fx * d1;
-				double y1 = y0 + fy * d1;
+	private int intersect(Polygon p, int rx0, int ry0, int rx1, int ry1)
+	{
+		int n = 0;
 
-				double x2 = x0 + fx * d2;
-				double y2 = y0 + fy * d2;
+		if (rx0 > rx1){int t = rx1; rx1 = rx0; rx0 = t;}
+		if (ry0 > ry1){int t = ry1; ry1 = ry0; ry0 = t;}
 
-				double area1 = Math.abs((x1 - x0) * (y1 - y0)) / 2.0;
-				double area2 = Math.abs((x2 - x0) * (y2 - y0)) / 2.0;
-				double area3 = Math.abs((x3 - x0) * (y3 - y0)) / 2.0;
-
-				if (!hor)
+		for (double y = ry0; y < ry1; y++)
+		{
+			for (double x = rx0; x < rx1; x++)
+			{
+				if (p.contains(x, y))
 				{
-					area1 = Math.abs((x1 - x0) * (y3 - y0)) - area1;
-					area2 = Math.abs((x2 - x0) * (y3 - y0)) - area2;
-					area3 = Math.abs((x3 - x0) * (y3 - y0)) - area3;
-				}
-
-				if (x0 <= MATRIX_SIZE / 3.0 && x3 <= MATRIX_SIZE / 3.0)
-				{
-					fill[orientation][type][0] += area3;
-				}
-				else if (x0 > MATRIX_SIZE / 3.0 && x3 < 2 * MATRIX_SIZE / 3.0)
-				{
-					fill[orientation][type][1] += area3;
-				}
-				else if (x0 >= 2 * MATRIX_SIZE / 3.0 && x3 >= 2 * MATRIX_SIZE / 3.0)
-				{
-					fill[orientation][type][2] += area3;
-				}
-				else if (x0 <= MATRIX_SIZE / 3.0 && x3 < 2 * MATRIX_SIZE / 3.0)
-				{
-					fill[orientation][type][0] += area1;
-					fill[orientation][type][1] += area3 - area1;
-				}
-				else if (x0 <= MATRIX_SIZE / 3.0 && x3 >= 2 * MATRIX_SIZE / 3.0)
-				{
-					fill[orientation][type][0] += area1;
-					fill[orientation][type][1] += area2 - area1;
-					fill[orientation][type][2] += area3 - area2;
-				}
-				else if (x0 < 2 * MATRIX_SIZE / 3.0 && x3 >= 2 * MATRIX_SIZE / 3.0)
-				{
-					fill[orientation][type][1] += area2;
-					fill[orientation][type][2] += area3 - area2;
-				}
-				else
-				{
-					throw new RuntimeException();
+					n++;
 				}
 			}
 		}
 
-//		if (debug && "�".equals(aSymbol.mCharacter))
-//		{
-//			//System.out.print((aSymbol.mCharacter==null?" ":aSymbol.mCharacter)+" ");
-//
-//String [][][] v = {
-//{{" 0"," 6"},{"15"," 0"},{" 0","14"}},
-//{{" 2"," 3"},{"20"," 0"},{" 6"," 7"}},
-//{{" 6"," 0"},{"25"," 0"},{"23"," 9"}},
-//{{" 7"," 0"},{"14"," 0"},{" 0","12"}},
-//{{" 0"," 0"},{" 0","10"},{"10"," 0"}},
-//{{" 0"," 0"},{" 0","12"},{"12"," 0"}},
-//{{" 0","12"},{" 0","12"},{"14"," 0"}},
-//{{" 0"," 0"},{" 0"," 5"},{" 4"," 0"}}};
-//
-//
-//			String [] names = {"left out ","right out","up out   ","down out ","left in  ","right in ","up in    ","down in  "};
-//
-//			for (int orientation = 0; orientation < 8; orientation++)
-//			{
-//				System.out.println(names[orientation]);
-//				for (int zone = 0; zone < 3; zone++)
-//				{
-//					for (int type = 0; type < 2; type++)
-//					{
-//						int s = (int)aSymbol.mCurvatureVector[orientation][type==0?1:0][zone];
-//						System.out.println((type==0?" 1":"-1")+","+(1+orientation)+","+(1+zone)+"="+(s<10?" ":"")+s+"\t"+v[orientation][zone][type]);
-//					}
-//				}
-//			}
-//
-//			System.exit(0);
-//		}
+//		System.out.println(n+"\t"+x0+"-"+x1+"\t"+y0+"-"+y1+"\t\t"+p.xpoints[0]+","+p.ypoints[0]+"\t"+p.xpoints[1]+","+p.ypoints[1]+"\t"+p.xpoints[2]+","+p.ypoints[2]);
+
+		return n;
 	}
 
 
-	public void learnSymbol(String aFontName, TextBox aTextBox)
+	private double min(double a, double b, double c)
+	{
+		if (a < b && a < c) return a;
+		if (b < c) return b;
+		return c;
+	}
+
+
+	private double max(double a, double b, double c)
+	{
+		if (a > b && a > c) return a;
+		if (b > c) return b;
+		return c;
+	}
+
+
+	public void learnSymbol(String aFontName, TextBox aTextBox, String aDefaultAlphabet, String aAlphabet)
 	{
 		boolean debug = OCREngine.isDebugEnabled(mPage);
 
@@ -871,16 +923,18 @@ class CurvatureClassifier
 
 		int charIndex = 13 * (aTextBox.y / 69) + (aTextBox.x / 71);
 
-		String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@+'/\\\"*.-:,&()=�";
 		String character = " ";
+		String defCharacter = " ";
 
-		if (charIndex < alphabet.length())
+		if (charIndex < aAlphabet.length())
 		{
-			character = "" + alphabet.charAt(charIndex);
+			character = "" + aAlphabet.charAt(charIndex);
+			defCharacter = "" + aDefaultAlphabet.charAt(charIndex);
 		}
 
 		symbol.mFontName = aFontName;
 		symbol.mCharacter = character;
+		symbol.mDefCharacter = defCharacter;
 
 		if (debug)
 		{
@@ -925,94 +979,93 @@ class CurvatureClassifier
 		extractTemplateDistance(symbol);
 
 		ArrayList<Result> results1 = classifySymbolByCurvature(symbol, aTextBox, aResolver);
-		ArrayList<Result> results2 = classifySymbolByTemplate(symbol, aTextBox, aResolver);
-		ArrayList<Result> results3 = classifySymbolByContour(symbol, aTextBox, aResolver);
+//		ArrayList<Result> results2 = classifySymbolByTemplate(symbol, aTextBox, aResolver);
+//		ArrayList<Result> results3 = classifySymbolByContour(symbol, aTextBox, aResolver);
 
-		if (results1.isEmpty() || results2.isEmpty() || results3.isEmpty())
-		{
-			return null;
-		}
+//		if (results1.isEmpty() || results2.isEmpty() || results3.isEmpty())
+//		{
+//			return null;
+//		}
+
+		Collections.sort(results1);
+//		Collections.sort(results2);
+//		Collections.sort(results3);
 
 		Result r1 = results1.get(0);
-		Result r2 = results2.get(0);
-		Result r3 = results3.get(0);
+//		Result r2 = results1.get(1);
+//		Result r3 = results1.get(2);
 
-		for (int i = 1; i < results1.size(); i++)
-		{
-			if (results1.get(i).mScore > r1.mScore)
-			{
-				r1 = results1.get(i);
-			}
-			if (results2.get(i).mScore > r2.mScore)
-			{
-				r2 = results2.get(i);
-			}
-			if (results3.get(i).mScore > r3.mScore)
-			{
-				r3 = results3.get(i);
-			}
-		}
+//		boolean guessed = false;
+		Result result = r1;
 
-		Result result;
-		boolean guessed = false;
 
-		if (r1.compare(r2) && r1.compare(r3))
-		{
-			result = new Result((r1.mScore + r2.mScore + r3.mScore) / 3, r1.mSymbol);
-		}
-		else if (r1.compare(r2))
-		{
-			result = new Result((r1.mScore + r2.mScore) / 2, r1.mSymbol);
-		}
-		else if (r1.compare(r3))
-		{
-			result = new Result((r1.mScore + r3.mScore) / 2, r1.mSymbol);
-		}
-		else if (r2.compare(r3))
-		{
-			result = new Result((r2.mScore + r3.mScore) / 2, r2.mSymbol);
-		}
-		else
-		{
-			guessed = true;
-			result = new Result(0, null);
 
-			for (int i = 0; i < results1.size(); i++)
-			{
-				double sa = results1.get(i).mScore;
-				double sb = results2.get(i).mScore;
-				double sc = results3.get(i).mScore;
+//		Result result;
+//		boolean guessed = false;
+//
+//		if (r1.compare(r2) && r1.compare(r3))
+//		{
+//			result = new Result((r1.mScore + r2.mScore + r3.mScore) / 3, r1.mSymbol);
+//		}
+//		else if (r1.compare(r2))
+//		{
+//			result = new Result((r1.mScore + r2.mScore) / 2, r1.mSymbol);
+//		}
+//		else if (r1.compare(r3))
+//		{
+//			result = new Result((r1.mScore + r3.mScore) / 2, r1.mSymbol);
+//		}
+//		else if (r2.compare(r3))
+//		{
+//			result = new Result((r2.mScore + r3.mScore) / 2, r2.mSymbol);
+//		}
+//		else
+//		{
+//			guessed = true;
+//			result = new Result(0, null);
+//
+//			for (int i = 0; i < results1.size(); i++)
+//			{
+//				double sa = results1.get(i).mScore;
+//				double sb = results2.get(i).mScore;
+//				double sc = results3.get(i).mScore;
+//
+//				double avg = (sa + sb + sc) / 3.0;
+//
+//				if (!results1.get(i).mSymbol.mCharacter.equals(results2.get(i).mSymbol.mCharacter) || !results1.get(i).mSymbol.mCharacter.equals(results3.get(i).mSymbol.mCharacter))
+//				{
+//					throw new RuntimeException();
+//				}
+//
+//				if (avg > result.mScore)
+//				{
+//					result = new Result(avg, results1.get(i).mSymbol);
+//				}
+//			}
+//		}
 
-				double avg = (sa + sb + sc) / 3.0;
-
-				if (!results1.get(i).mSymbol.mCharacter.equals(results2.get(i).mSymbol.mCharacter) || !results1.get(i).mSymbol.mCharacter.equals(results3.get(i).mSymbol.mCharacter))
-				{
-					throw new RuntimeException();
-				}
-
-				if (avg > result.mScore)
-				{
-					result = new Result(avg, results1.get(i).mSymbol);
-				}
-			}
-		}
-
-		if (debug)
+		if (debug || /*mPage.isDebug() &&*/ mPrintCharacters)
 		{
 			mPage.mDebugGraphics.setFont(new Font("arial", Font.PLAIN, 10));
-			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r1.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r1.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
-			mPage.mDebugGraphics.drawString("" + r1.mSymbol, aTextBox.x, aTextBox.y - 23);
-			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r2.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r2.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
-			mPage.mDebugGraphics.drawString("" + r2.mSymbol, aTextBox.x, aTextBox.y - 14);
-			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r3.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r3.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
-			mPage.mDebugGraphics.drawString("" + r3.mSymbol, aTextBox.x, aTextBox.y - 5);
+			mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 64));
+			mPage.mDebugGraphics.drawString("" + r1.mSymbol, aTextBox.x, aTextBox.y - 5);
+			mPage.mDebugGraphics.setColor(new Color(0, 0, 255, 64));
+			mPage.mDebugGraphics.drawString("" + r1.mSymbol.mDefCharacter, aTextBox.x, aTextBox.y - 14);
+
+//			mPage.mDebugGraphics.setFont(new Font("arial", Font.PLAIN, 10));
+//			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r1.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r1.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
+//			mPage.mDebugGraphics.drawString("" + r1.mSymbol, aTextBox.x, aTextBox.y - 23);
+//			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r2.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r2.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
+//			mPage.mDebugGraphics.drawString("" + r2.mSymbol, aTextBox.x, aTextBox.y - 14);
+//			mPage.mDebugGraphics.setColor(guessed && result.mSymbol.equals(r3.mSymbol) ? new Color(0, 255, 0, 128) : result.mSymbol.equals(r3.mSymbol) ? new Color(0, 0, 0) : new Color(255, 0, 0, 128));
+//			mPage.mDebugGraphics.drawString("" + r3.mSymbol, aTextBox.x, aTextBox.y - 5);
 		}
 
 		return result;
 	}
 
 
-	private ArrayList<Result> classifySymbolByContour(Symbol aSymbol, TextBox box, Resolver aResolver)
+	private ArrayList<Result> classifySymbolByContour(Symbol aSymbol, TextBox aTextBox, Resolver aResolver)
 	{
 		boolean debug = OCREngine.isDebugEnabled(mPage);
 
@@ -1020,7 +1073,7 @@ class CurvatureClassifier
 
 		for (Symbol cmpSymbol : mSymbols)
 		{
-			if (!aResolver.acceptSymbol(mPage, box, cmpSymbol))
+			if (!aResolver.acceptSymbol(mPage, aTextBox, cmpSymbol))
 			{
 				continue;
 			}
@@ -1149,127 +1202,41 @@ class CurvatureClassifier
 	}
 
 
-	private ArrayList<Result> classifySymbolByCurvature(Symbol symbol, TextBox box, Resolver aResolver)
+	private ArrayList<Result> classifySymbolByCurvature(Symbol aSymbol, TextBox aTextBox, Resolver aResolver)
 	{
 		boolean debug = OCREngine.isDebugEnabled(mPage);
 
 		ArrayList<Result> results = new ArrayList<>();
 
-		if (debug)
-		{
-			System.out.println();
-			System.out.print("    ");
-			for (int orientation = 0; orientation < 8; orientation++)
-			{
-				System.out.print("[");
-				for (int zone = 0; zone < 3; zone++)
-				{
-					for (int type = 0; type < 2; type++)
-					{
-						int v = (int)Math.round(symbol.mCurvatureVector[orientation][type][zone]);
-						System.out.print((v < 10 ? " " : "") + v + " ");
-					}
-				}
-				System.out.print("]");
-			}
-
-			Symbol sym0 = null;
-			Symbol sym1 = null;
-
-			for (Symbol cmpSymbol : mSymbols)
-			{
-				if (cmpSymbol.mCharacter.equals("a"))
-				{
-					sym0 = cmpSymbol;
-				}
-				if (cmpSymbol.mCharacter.equals("s"))
-				{
-					sym1 = cmpSymbol;
-				}
-			}
-
-			System.out.println();
-			for (Symbol cmpSymbol : new Symbol[]
-			{
-				sym0, sym1
-			})
-			{
-				System.out.println("REAL");
-				System.out.print(cmpSymbol.mCharacter + " = ");
-				for (int orientation = 0; orientation < 8; orientation++)
-				{
-					System.out.print("[");
-					for (int zone = 0; zone < 3; zone++)
-					{
-						for (int type = 0; type < 2; type++)
-						{
-							double cmp = Math.round(cmpSymbol.mCurvatureVector[orientation][type][zone]);
-							System.out.print((cmp < 10 ? " " : "") + (int)cmp + " ");
-						}
-					}
-					System.out.print("]");
-				}
-				System.out.println();
-			}
-
-			System.out.println();
-		}
-
 		for (Symbol cmpSymbol : mSymbols)
 		{
-			if (!aResolver.acceptSymbol(mPage, box, cmpSymbol))
+			if (!aResolver.acceptSymbol(mPage, aTextBox, cmpSymbol))
 			{
 				continue;
 			}
 
 			double cmpTotal = 0;
 
-			if (debug)
-			{
-				System.out.print(cmpSymbol.mCharacter + " = ");
-			}
-
 			for (int orientation = 0; orientation < 8; orientation++)
 			{
-				if (debug)
-				{
-					System.out.print("[");
-				}
 				for (int zone = 0; zone < 3; zone++)
 				{
 					for (int type = 0; type < 2; type++)
 					{
-						if (debug)
-						{
-							int v = (int)cmpSymbol.mCurvatureVector[orientation][type][zone];
-						}
-
 						double s1 = cmpSymbol.mCurvatureVector[orientation][type][zone];
-						double s2 = symbol.mCurvatureVector[orientation][type][zone];
+						double s2 = aSymbol.mCurvatureVector[orientation][type][zone];
 
-						double d = Math.abs(s1 - s2);
+						double d = Math.pow(Math.abs(s1 - s2), 2);
 
 						cmpTotal += d;
-
-						if (debug)
-						{
-							System.out.print((Math.round(d) < 10 ? " " : "") + (int)Math.round(d) + " ");
-						}
 					}
 				}
-				if (debug)
-				{
-					System.out.print("]");
-				}
 			}
 
-			cmpTotal /= 8 * MATRIX_SIZE * MATRIX_SIZE;
-			cmpTotal = 1 - cmpTotal;
-
-			if (debug)
-			{
-				System.out.println(" = " + cmpTotal);
-			}
+//			if (aTextBox.x == 827 && aTextBox.y == 1154)
+//			{
+//				System.out.println(cmpSymbol+" "+cmpTotal);
+//			}
 
 			Result result = new Result(cmpTotal, cmpSymbol);
 

@@ -244,7 +244,6 @@ class PageSegmenter
 		for (int i = 0; i < w; i++)
 		{
 			if (scanLine(x + i, y, h) == 0)
-//			if (findPath(x + i, y, h))
 			{
 				return i - 1;
 			}
@@ -282,12 +281,27 @@ class PageSegmenter
 
 	private double scanLine(int x, int y, int h)
 	{
+		boolean[][] raster = mPage.getRaster();
+		int iw = mPage.getWidth();
+		int ih = mPage.getHeight();
+		int n = 0;
 		int s = 0;
-		for (int i = 0; i < h; i++)
+
+		if (x < 0 || x >= iw)
 		{
-			s += mPage.getRaster()[y + i][x] ? 1 : 0;
+			return 0;
 		}
-		return s / (double)h;
+
+		for (int i = Math.max(y, 0), j = Math.min(y + h, ih); i < j; i++)
+		{
+			if (raster[i][x])
+			{
+				s++;
+			}
+			n++;
+		}
+
+		return s / (double)n;
 	}
 
 
@@ -309,7 +323,7 @@ class PageSegmenter
 		Rectangle r = new Rectangle();
 		Rectangle q = new Rectangle();
 
-		int sensorSize = (int)(aCharacterSpacing);
+		int sensorSize = (int)aCharacterSpacing;
 
 		while (aCharacterRectangles.size() > 0)
 		{
@@ -413,8 +427,8 @@ class PageSegmenter
 
 		int minX = (int)(aFromX * mPage.getWidth()) + 1;
 		int minY = (int)(aFromY * mPage.getHeight()) + 1;
-		int maxX = (int)(aToX * mPage.getWidth()) - aMaxWidth - 3;
-		int maxY = (int)(aToY * mPage.getHeight()) - aMaxHeight - 3;
+		int maxX = (int)(aToX * mPage.getWidth()) - 1;
+		int maxY = (int)(aToY * mPage.getHeight()) - 1;
 
 		for (int iy = minY; iy < maxY; iy++)
 		{
@@ -432,15 +446,6 @@ class PageSegmenter
 					while (h < aMaxHeight + 3 && w < aMaxWidth + 3)
 					{
 						int s = scanBounds(x, y, w, h);
-//if (debug)
-//{
-//	if(x>1621+82 && y>2274 && x<1621+107 && y<2328)
-//	{
-//		mPage.mGraphics.setColor(new Color(255,255,0,128));
-//		mPage.mGraphics.drawRect(x, y, w, h);
-//		try{ImageIO.write(mPage.getDebugRegion(1621, 2274, 1821, 2328), "png", new File("d:/debug/"+System.nanoTime()+".png"));}catch(Exception e){e.printStackTrace();}
-//	}
-//}
 
 						if ((s & SCAN_TOP) != 0)
 						{
@@ -466,11 +471,6 @@ class PageSegmenter
 						}
 					}
 
-//if (debug)
-//{
-//	mPage.mGraphics.setColor(new Color(255,255,0,128));
-//	mPage.mGraphics.drawRect(x, y, w, h);
-//}
 					while (h > aMinHeight && w > aMinWidth)
 					{
 						int s = scanBounds(x, y, w, h);
@@ -518,7 +518,7 @@ class PageSegmenter
 					{
 						if (debug)
 						{
-							System.out.println(w + " >= " + aMinWidth + " && " + w + " <= " + aMaxWidth + " && " + h + " >= " + aMinHeight + " && " + h + " <= " + aMaxHeight);
+//							Log.out.println(w + " >= " + aMinWidth + " && " + w + " <= " + aMaxWidth + " && " + h + " >= " + aMinHeight + " && " + h + " <= " + aMaxHeight);
 
 							mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 128));
 							mPage.mDebugGraphics.drawRect(x, y, w, h);
