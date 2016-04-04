@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 
 public class Symbol
 {
-	private BufferedImage mBitmap;
+	private Bitmap mBitmap;
 	protected Insets mBorders;
 	protected String mFontName;
 	protected String mCharacter;
@@ -28,13 +28,13 @@ public class Symbol
 	}
 
 
-	public BufferedImage getBitmap()
+	public Bitmap getBitmap()
 	{
 		return mBitmap;
 	}
 
 
-	public void setBitmap(BufferedImage aBitmap)
+	public void setBitmap(Bitmap aBitmap)
 	{
 		mBitmap = aBitmap;
 	}
@@ -50,12 +50,12 @@ public class Symbol
 	{
 		if (x < 0 || y < 0 || x >= mBitmap.getWidth() || y >= mBitmap.getHeight())
 		{
-			return Page.WHITE;
+			return Bitmap.WHITE;
 		}
 
-		return (byte)mBitmap.getRGB(x,y);
+		return mBitmap.colorAt(x,y);
 	}
-
+ 
 
 	@Override
 	public String toString()
