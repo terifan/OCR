@@ -11,7 +11,7 @@ import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
 
  
-public class Bitmap implements Cloneable
+public class Bitmap
 {
 	public final static byte BLACK = 0;
 	public final static byte WHITE = (byte)255;
@@ -48,8 +48,31 @@ public class Bitmap implements Cloneable
 	}
 
 
+	public int getWidth()
+	{
+		return mWidth;
+	}
+
+
+	public int getHeight()
+	{
+		return mHeight;
+	}
+
+
 	public boolean isBlack(int x, int y)
 	{
+		return mRaster[mWidth * y + x] >= 0; // 0-127 black
+	}
+
+
+	public boolean isBlack(int x, int y, boolean aDefault)
+	{
+		if (x < 0 || x >= mWidth || y < 0 || y >= mHeight)
+		{
+			return aDefault;
+		}
+
 		return mRaster[mWidth * y + x] >= 0; // 0-127 black
 	}
 
@@ -399,38 +422,6 @@ public class Bitmap implements Cloneable
 		}
 
 		return sum / w;
-	}
-
-
-	@Override
-	public Bitmap clone()
-	{
-		try
-		{
-			return (Bitmap)super.clone();
-		}
-		catch (CloneNotSupportedException e)
-		{
-			throw new InternalError();
-		}
-	}
-
-
-	public int getWidth()
-	{
-		return mWidth;
-	}
-
-
-	public int getHeight()
-	{
-		return mHeight;
-	}
-
-
-	public boolean isPortraitOrientation()
-	{
-		return mHeight > mWidth;
 	}
 
 

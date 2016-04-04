@@ -2,7 +2,6 @@ package org.terifan.ocr;
 
 import java.awt.Insets;
 import java.awt.Polygon;
-import java.awt.image.BufferedImage;
 
 
 public class Symbol
@@ -28,6 +27,12 @@ public class Symbol
 	}
 
 
+	public String getFontName()
+	{
+		return mFontName;
+	}
+
+
 	public Bitmap getBitmap()
 	{
 		return mBitmap;
@@ -46,26 +51,9 @@ public class Symbol
 	}
 
 
-	public byte getGray(int x, int y)
-	{
-		if (x < 0 || y < 0 || x >= mBitmap.getWidth() || y >= mBitmap.getHeight())
-		{
-			return Bitmap.WHITE;
-		}
-
-		return mBitmap.colorAt(x,y);
-	}
- 
-
 	@Override
 	public String toString()
 	{
 		return mCharacter;
-	}
-
-
-	public String getFontName()
-	{
-		return mFontName;
 	}
 }

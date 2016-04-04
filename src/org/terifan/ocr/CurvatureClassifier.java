@@ -831,103 +831,103 @@ public class CurvatureClassifier
 	}
 
 
-	private ArrayList<Result> classifySymbolByContour(Symbol aSymbol, TextBox aTextBox, Resolver aResolver)
-	{
-		ArrayList<Result> results = new ArrayList<>();
-
-		for (Symbol cmpSymbol : mSymbols)
-		{
-			if (!aResolver.acceptSymbol(mPage, aTextBox, cmpSymbol))
-			{
-				continue;
-			}
-
-			double cmpDiff = 0;
-
-			for (int orientation = 0; orientation < 8; orientation++)
-			{
-				double[] symCont = aSymbol.mContour[orientation];
-				double[] cmpCont = cmpSymbol.mContour[orientation];
-				for (int i = 0; i < MATRIX_SIZE; i++)
-				{
-					cmpDiff += Math.abs(symCont[i] - cmpCont[i]);
-				}
-			}
-
-			cmpDiff /= 8 * MATRIX_SIZE * MATRIX_SIZE;
-			cmpDiff = 1 - cmpDiff;
-
-//			if (debug)
+//	private ArrayList<Result> classifySymbolByContour(Symbol aSymbol, TextBox aTextBox, Resolver aResolver)
+//	{
+//		ArrayList<Result> results = new ArrayList<>();
+//
+//		for (Symbol cmpSymbol : mSymbols)
+//		{
+//			if (!aResolver.acceptSymbol(mPage, aTextBox, cmpSymbol))
 //			{
-//				System.out.println(cmpSymbol.mCharacter + " = " + cmpDiff);
+//				continue;
 //			}
-
-			Result result = new Result(cmpDiff, cmpSymbol);
-
-			results.add(result);
-		}
-
-		return results;
-	}
-
-
-	private ArrayList<Result> classifySymbolByTemplate(Symbol aSymbol, TextBox aTextBox, Resolver aResolver)
-	{
-		ArrayList<Result> results = new ArrayList<>();
-
-		for (Symbol symbol : mSymbols)
-		{
-			if (!aResolver.acceptSymbol(mPage, aTextBox, symbol))
-			{
-				continue;
-			}
-
-			double score = 0;
-
-			for (int y = 0; y < MATRIX_SIZE; y++)
-			{
-				for (int x = 0; x < MATRIX_SIZE; x++)
-				{
-					score += Math.abs(aSymbol.mClosestPixel[y][x] - symbol.mClosestPixel[y][x]);
-				}
-			}
-
-			score /= MATRIX_SIZE * MATRIX_SIZE * MATRIX_SIZE;
-			score = 1 - score;
-
-//			if (debug)
+//
+//			double cmpDiff = 0;
+//
+//			for (int orientation = 0; orientation < 8; orientation++)
 //			{
-//				System.out.println(symbol.mCharacter + " = " + score);
+//				double[] symCont = aSymbol.mContour[orientation];
+//				double[] cmpCont = cmpSymbol.mContour[orientation];
+//				for (int i = 0; i < MATRIX_SIZE; i++)
+//				{
+//					cmpDiff += Math.abs(symCont[i] - cmpCont[i]);
+//				}
 //			}
-
-			results.add(new Result(score, symbol));
-		}
-
-		return results;
-	}
+//
+//			cmpDiff /= 8 * MATRIX_SIZE * MATRIX_SIZE;
+//			cmpDiff = 1 - cmpDiff;
+//
+////			if (debug)
+////			{
+////				System.out.println(cmpSymbol.mCharacter + " = " + cmpDiff);
+////			}
+//
+//			Result result = new Result(cmpDiff, cmpSymbol);
+//
+//			results.add(result);
+//		}
+//
+//		return results;
+//	}
+//
+//
+//	private ArrayList<Result> classifySymbolByTemplate(Symbol aSymbol, TextBox aTextBox, Resolver aResolver)
+//	{
+//		ArrayList<Result> results = new ArrayList<>();
+//
+//		for (Symbol symbol : mSymbols)
+//		{
+//			if (!aResolver.acceptSymbol(mPage, aTextBox, symbol))
+//			{
+//				continue;
+//			}
+//
+//			double score = 0;
+//
+//			for (int y = 0; y < MATRIX_SIZE; y++)
+//			{
+//				for (int x = 0; x < MATRIX_SIZE; x++)
+//				{
+//					score += Math.abs(aSymbol.mClosestPixel[y][x] - symbol.mClosestPixel[y][x]);
+//				}
+//			}
+//
+//			score /= MATRIX_SIZE * MATRIX_SIZE * MATRIX_SIZE;
+//			score = 1 - score;
+//
+////			if (debug)
+////			{
+////				System.out.println(symbol.mCharacter + " = " + score);
+////			}
+//
+//			results.add(new Result(score, symbol));
+//		}
+//
+//		return results;
+//	}
 
 
 	private int findClosestPixel(Symbol aSymbol, int x, int y)
 	{
-		byte T = Bitmap.THRESHOLD;
+		Bitmap bitmap = aSymbol.getBitmap();
 
 		for (int s = 0; s < MATRIX_SIZE; s++)
 		{
 			for (int i = -s; i <= s; i++)
 			{
-				if (aSymbol.getGray(x + i, y - s) < T)
+				if (bitmap.isBlack(x + i, y - s, false))
 				{
 					return s;
 				}
-				if (aSymbol.getGray(x + i, y + s) < T)
+				if (bitmap.isBlack(x + i, y + s, false))
 				{
 					return s;
 				}
-				if (aSymbol.getGray(x - s, y + i) < T)
+				if (bitmap.isBlack(x - s, y + i, false))
 				{
 					return s;
 				}
-				if (aSymbol.getGray(x + s, y + i) < T)
+				if (bitmap.isBlack(x + s, y + i, false))
 				{
 					return s;
 				}

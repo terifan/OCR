@@ -1,7 +1,7 @@
 package org.terifan.ocr;
 
 
-public class Page implements Cloneable
+public class Page
 {
 	private Bitmap mBitmap;
 	
