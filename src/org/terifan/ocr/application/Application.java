@@ -33,7 +33,7 @@ public class Application
 
 			OCREngine engine = new OCREngine();
 //			engine.learnAlphabet("courier new", new Page(new Bitmap(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial_ru_bold.png")))));
-			engine.learnAlphabet("courier new", new Page(new Bitmap(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial.png")))));
+			engine.learnAlphabet("courier new", new Bitmap(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial.png"))));
 			engine.setMinSymbolWidth(2);
 			engine.setMaxSymbolWidth(30);
 			engine.setMinSymbolHeight(10);

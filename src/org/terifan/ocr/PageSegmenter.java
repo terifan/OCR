@@ -83,7 +83,7 @@ class PageSegmenter
 			int x = range[0];
 			int width = range[1];
 
-			Insets borders = Tools.getBorders(mPage, aTextBox.x + x, aTextBox.y, width, aTextBox.height);
+			Insets borders = mPage.getBitmap().getBorders(aTextBox.x + x, aTextBox.y, width, aTextBox.height);
 
 			int symCount;
 

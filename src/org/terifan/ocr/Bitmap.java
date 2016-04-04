@@ -2,6 +2,7 @@ package org.terifan.ocr;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -508,5 +509,76 @@ public class Bitmap implements Cloneable
 	byte colorAt(int aX, int aY)
 	{
 		return mRaster[aY * mWidth + aX];
+	}
+
+
+	public Insets getBorders(int x, int y, int w, int h)
+	{
+		int x0 = x;
+		int y0 = y;
+		int x1 = x + w;
+		int y1 = y + h;
+
+		Insets borders = new Insets(0, 0, 0, 0);
+
+		outer:
+		for (y = y0; y < y1; y++)
+		{
+			for (x = x0; x < x1; x++)
+			{
+				if (isBlack(x,y))
+				{
+					borders.top = y - y0;
+					break outer;
+				}
+			}
+		}
+
+		outer:
+		for (y = y1 + 1; --y >= y0;)
+		{
+			for (x = x0; x < x1; x++)
+			{
+				if (isBlack(x,y))
+				{
+					borders.bottom = y1 - y;
+					break outer;
+				}
+			}
+		}
+
+		outer:
+		for (x = x0; x < x1; x++)
+		{
+			for (y = y0; y < y1; y++)
+			{
+				if (isBlack(x,y))
+				{
+					borders.left = x - x0;
+					break outer;
+				}
+			}
+		}
+
+		outer:
+		for (x = x1 + 1; --x >= x0;)
+		{
+			for (y = y0; y < y1; y++)
+			{
+				if (isBlack(x,y))
+				{
+					borders.right = x1 - x;
+					break outer;
+				}
+			}
+		}
+
+		return borders;
+	}
+
+
+	BufferedImage getRegion(int x0, int y0, int x1, int y1)
+	{
+		return mImage.getSubimage(x0, y0, x1-x0, y1-y0);
 	}
 }

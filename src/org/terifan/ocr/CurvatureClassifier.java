@@ -1,18 +1,13 @@
 package org.terifan.ocr;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import javax.imageio.ImageIO;
 
 
 public class CurvatureClassifier
@@ -41,7 +36,7 @@ public class CurvatureClassifier
 	}
 
 
-	public void learn(String aFontName, Page aPage, String aAlphabet)
+	public void learn(String aFontName, Bitmap aBitmap, String aAlphabet)
 	{
 		if (aAlphabet == null)
 		{
@@ -51,11 +46,6 @@ public class CurvatureClassifier
 		{
 			throw new IllegalArgumentException("Alphabet must contain " + aAlphabet.length() + " characters");
 		}
-
-		mPage = aPage;
-
-		PageSegmenter segmenter = new PageSegmenter();
-		segmenter.mLearning = true;
 
 		int GW = 71;
 		int GH = 69;
@@ -71,7 +61,7 @@ public class CurvatureClassifier
 
 		for (TextBox box : textBoxes)
 		{
-			learnSymbol(aFontName, box, DEFAULT_ALPHABET, aAlphabet);
+			learnSymbol(aBitmap, aFontName, box, DEFAULT_ALPHABET, aAlphabet);
 		}
 	}
 
@@ -82,15 +72,15 @@ public class CurvatureClassifier
 	}
 
 
-	private void extractBitmap(Symbol aSymbol)
+	private void extractBitmap(Bitmap aBitmap, Symbol aSymbol)
 	{
 		TextBox box = aSymbol.mTextBox;
 
-		Insets borders = Tools.getBorders(mPage, box.x, box.y, box.width, box.height);
+		Insets borders = aBitmap.getBorders(box.x, box.y, box.width, box.height);
 
 		aSymbol.mBorders = borders;
 
-		BufferedImage tmp = mPage.getRegion(box.x + borders.left, box.y + borders.top, box.x + box.width - borders.right + 1, box.y + box.height - borders.bottom + 1);
+		BufferedImage tmp = aBitmap.getRegion(box.x + borders.left, box.y + borders.top, box.x + box.width - borders.right + 1, box.y + box.height - borders.bottom + 1);
 
 		tmp = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_BYTE_GRAY);
 
@@ -772,7 +762,7 @@ public class CurvatureClassifier
 	}
 
 
-	private void learnSymbol(String aFontName, TextBox aTextBox, String aDefaultAlphabet, String aAlphabet)
+	private void learnSymbol(Bitmap aBitmap, String aFontName, TextBox aTextBox, String aDefaultAlphabet, String aAlphabet)
 	{
 		Symbol symbol = new Symbol(aTextBox);
 
@@ -798,7 +788,7 @@ public class CurvatureClassifier
 //			System.out.println("");
 //		}
 
-		extractBitmap(symbol);
+		extractBitmap(aBitmap, symbol);
 
 		if (symbol.getBitmap().getRectFillFactor(0, 0, MATRIX_SIZE, MATRIX_SIZE) == 0)
 		{
@@ -826,7 +816,7 @@ public class CurvatureClassifier
 //		}
 
 		Symbol symbol = new Symbol(aTextBox);
-		extractBitmap(symbol);
+		extractBitmap(aPage.getBitmap(), symbol);
 		extractContour(symbol);
 		extractSlopes(symbol);
 		extractCurvature(symbol);

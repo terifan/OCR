@@ -44,15 +44,15 @@ public class OCREngine
 	}
 
 
-	public void learnAlphabet(String aFontName, Page aPage)
+	public void learnAlphabet(String aFontName, Bitmap aBitmap)
 	{
-		learnAlphabet(aFontName, aPage, null);
+		learnAlphabet(aFontName, aBitmap, null);
 	}
 
 
-	public void learnAlphabet(String aFontName, Page aPage, String aAlphabet)
+	public void learnAlphabet(String aFontName, Bitmap aBitmap, String aAlphabet)
 	{
-		mCurvatureClassifier.learn(aFontName, aPage, aAlphabet);
+		mCurvatureClassifier.learn(aFontName, aBitmap, aAlphabet);
 	}
 
 
