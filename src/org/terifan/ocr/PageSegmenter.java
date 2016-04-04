@@ -8,6 +8,11 @@ import java.util.ArrayList;
 
 class PageSegmenter
 {
+	private final static int SCAN_TOP = 1;
+	private final static int SCAN_LEFT = 2;
+	private final static int SCAN_BOTTOM = 4;
+	private final static int SCAN_RIGHT = 8;
+
 	private Page mPage;
 	public boolean mLearning; // TODO: remove
 
@@ -252,36 +257,8 @@ class PageSegmenter
 	}
 
 
-	private boolean findPath(int x, int y, int h)
-	{
-		boolean[][] raster = mPage.getRaster();
-
-		for (; h > 0 && y > 0 && x > 0; y++, h--)
-		{
-			boolean b = raster[y][x] || raster[y - 1][x];
-
-			if (b)
-			{
-				b = raster[y - 1][x - 1] || raster[y + 1][x - 1];
-			}
-
-			if (b)
-			{
-				b = raster[y - 1][x + 1] || raster[y + 1][x + 1];
-			}
-
-			if (b)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-
 	private double scanLine(int x, int y, int h)
 	{
-		boolean[][] raster = mPage.getRaster();
 		int iw = mPage.getWidth();
 		int ih = mPage.getHeight();
 		int n = 0;
@@ -294,7 +271,7 @@ class PageSegmenter
 
 		for (int i = Math.max(y, 0), j = Math.min(y + h, ih); i < j; i++)
 		{
-			if (raster[i][x])
+			if (mPage.isBlack(x,i))
 			{
 				s++;
 			}
@@ -370,22 +347,6 @@ class PageSegmenter
 					}
 				}
 			}
-
-//			if (debug)
-//			{
-//				Rectangle tmp = new Rectangle(textBox);
-//
-//				int sw = sensorSize;
-//				int sh = tmp.height/2;
-//
-//				tmp.x -= sw/2;
-//				tmp.y += tmp.height/2-sh/2;
-//				tmp.width += sw;
-//				tmp.height = sh;
-//
-//				mPage.mDebugGraphics.setColor(new Color(0,0,255,128));
-//				mPage.mDebugGraphics.draw(tmp);
-//			}
 		}
 
 		// remove text boxes that violate size requirements
@@ -434,7 +395,7 @@ class PageSegmenter
 		{
 			for (int ix = minX; ix < maxX; ix++)
 			{
-				if (mPage.getRaster(ix, iy) && !mPage.getRaster(ix, iy - 1))
+				if (mPage.isBlack(ix, iy) && !mPage.isBlack(ix, iy - 1))
 				{
 					int x = ix;
 					int y = iy;
@@ -542,22 +503,22 @@ class PageSegmenter
 
 		for (int i = 0; i < w; i++)
 		{
-			if (!top && mPage.getRaster(x + i, y))
+			if (!top && mPage.isBlack(x + i, y))
 			{
 				top = true;
 			}
-			if (!bottom && mPage.getRaster(x + i, y + h))
+			if (!bottom && mPage.isBlack(x + i, y + h))
 			{
 				bottom = true;
 			}
 		}
 		for (int i = 0; i < h; i++)
 		{
-			if (!left && mPage.getRaster(x, y + i))
+			if (!left && mPage.isBlack(x, y + i))
 			{
 				left = true;
 			}
-			if (!right && mPage.getRaster(x + w, y + i))
+			if (!right && mPage.isBlack(x + w, y + i))
 			{
 				right = true;
 			}
@@ -565,9 +526,4 @@ class PageSegmenter
 
 		return (top ? SCAN_TOP : 0) + (right ? SCAN_RIGHT : 0) + (bottom ? SCAN_BOTTOM : 0) + (left ? SCAN_LEFT : 0);
 	}
-
-	private final static int SCAN_TOP = 1;
-	private final static int SCAN_LEFT = 2;
-	private final static int SCAN_BOTTOM = 4;
-	private final static int SCAN_RIGHT = 8;
 }

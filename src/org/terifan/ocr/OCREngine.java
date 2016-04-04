@@ -195,9 +195,6 @@ public class OCREngine
 
 	public void loadPage(double aFromX, double aFromY, double aToX, double aToY, Page aPage)
 	{
-		// TODO: image might already be up-to-date
-		aPage.updateImage();
-
 		mPage = aPage;
 		mCurvatureClassifier.init(aPage);
 

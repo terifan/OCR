@@ -2,7 +2,9 @@ package org.terifan.ocr.application;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,22 +24,19 @@ public class Application
 	{
 		try
 		{
-//			Page page = new Page(Application.class.getResourceAsStream("samples/sample_01.png"));
-			Page page = new Page(Application.class.getResourceAsStream("samples/sample_02.png"));
+//			Page page = new Page(ImageIO.read(Application.class.getResource("samples/sample_01.png")));
+			Page page = new Page(ImageIO.read(Application.class.getResource("samples/sample_02.png")));
 
 			page.eraseLines(0.5, 0);
-			page.updateImage();
 
 			OCREngine engine = new OCREngine();
-//			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial_ru_bold.png")));
-			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial.png")));
+//			engine.learnAlphabet("courier new", new Page(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial_ru_bold.png"))));
+			engine.learnAlphabet("courier new", new Page(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial.png"))));
 			engine.setMinSymbolWidth(2);
 			engine.setMaxSymbolWidth(30);
 			engine.setMinSymbolHeight(10);
 			engine.setMaxSymbolHeight(35);
 			engine.setCharacterSpacingFraction(0.25);
-
-			page.initDebug();
 
 			engine.loadPage(0.0, 0.0, 1.0, 1.0, page);
 
@@ -99,7 +98,7 @@ public class Application
 
 			splitPane.setDividerLocation(0.25);
 
-			page.writeDebug("d:/debug.png");
+			ImageIO.write(page.getDebugImage(), "png", new File("d:/debug.png"));
 		}
 		catch (Throwable e)
 		{

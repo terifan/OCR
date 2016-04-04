@@ -12,7 +12,6 @@ class Tools
 		int x1 = x + w;
 		int y1 = y + h;
 
-		boolean[][] raster = aPage.getRaster();
 		Insets borders = new Insets(0, 0, 0, 0);
 
 		outer:
@@ -20,7 +19,7 @@ class Tools
 		{
 			for (x = x0; x < x1; x++)
 			{
-				if (raster[y][x])
+				if (aPage.isBlack(x,y))
 				{
 					borders.top = y - y0;
 					break outer;
@@ -33,7 +32,7 @@ class Tools
 		{
 			for (x = x0; x < x1; x++)
 			{
-				if (raster[y][x])
+				if (aPage.isBlack(x,y))
 				{
 					borders.bottom = y1 - y;
 					break outer;
@@ -46,7 +45,7 @@ class Tools
 		{
 			for (y = y0; y < y1; y++)
 			{
-				if (raster[y][x])
+				if (aPage.isBlack(x,y))
 				{
 					borders.left = x - x0;
 					break outer;
@@ -59,7 +58,7 @@ class Tools
 		{
 			for (y = y0; y < y1; y++)
 			{
-				if (raster[y][x])
+				if (aPage.isBlack(x,y))
 				{
 					borders.right = x1 - x;
 					break outer;
