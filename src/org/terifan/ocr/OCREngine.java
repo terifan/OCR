@@ -8,12 +8,10 @@ import java.util.ArrayList;
 
 public class OCREngine
 {
-	public final static int DEBUG_COMPONENT = 1;
-
-	private CurvatureClassifier mCurvatureClassifier;
 	private Page mPage;
 	private Resolver mResolver;
 	private ArrayList<TextBox> mTextBoxes;
+	private CurvatureClassifier mCurvatureClassifier;
 
 	private double mCharacterAspectRatio;
 	private double mCharacterSpacing;
@@ -46,23 +44,21 @@ public class OCREngine
 	}
 
 
-	public void learnAlphabet(String aFontName, Page aPage)
+	public void learnAlphabet(String aFontName, Bitmap aBitmap)
 	{
-		learnAlphabet(aFontName, aPage, null);
+		learnAlphabet(aFontName, aBitmap, null);
 	}
 
 
-	public void learnAlphabet(String aFontName, Page aPage, String aAlphabet)
+	public void learnAlphabet(String aFontName, Bitmap aBitmap, String aAlphabet)
 	{
-		Page tmp = mPage;
-		mCurvatureClassifier.learn(aFontName, aPage, aAlphabet);
-		mCurvatureClassifier.init(tmp);
+		mCurvatureClassifier.learn(aFontName, aBitmap, aAlphabet);
 	}
 
 
 	public void clearAlphabets()
 	{
-		mCurvatureClassifier.clearAlphabets();
+		mCurvatureClassifier.reset();
 	}
 
 
@@ -123,8 +119,6 @@ public class OCREngine
 	/**
 	 * Sets the width / height aspect ration of a font. Default is 1.4 which
 	 * indicate a font being 40% heigher than wide.
-	 *
-	 * @param aCharacterAspectRatio
 	 */
 	public void setCharacterAspectRatio(double aCharacterAspectRatio)
 	{
@@ -195,11 +189,7 @@ public class OCREngine
 
 	public void loadPage(double aFromX, double aFromY, double aToX, double aToY, Page aPage)
 	{
-		// TODO: image might already be up-to-date
-		aPage.updateImage();
-
 		mPage = aPage;
-		mCurvatureClassifier.init(aPage);
 
 		if (mCharacterSpacingExact != 0)
 		{
@@ -237,7 +227,7 @@ public class OCREngine
 
 		return scan(x1, y1, x2, y2, aResolver);
 	}
-
+ 
 
 	public ArrayList<TextBox> scan(Rectangle2D aRect, Resolver aResolver)
 	{
@@ -247,8 +237,6 @@ public class OCREngine
 
 	public ArrayList<TextBox> scan(double aFromX, double aFromY, double aToX, double aToY, Resolver aResolver)
 	{
-		boolean debug = OCREngine.isDebugEnabled(mPage);
-
 		if (mTextBoxes == null)
 		{
 			throw new IllegalStateException("Page not loaded - call load method first.");
@@ -281,34 +269,34 @@ public class OCREngine
 				{
 					results.add(box);
 
-					if (debug)
-					{
-						debugFoundBoxes = true;
-						mPage.mDebugGraphics.setColor(new Color(0,0,255,128));
-						mPage.mDebugGraphics.draw(box);
-					}
+//					if (debug)
+//					{
+//						debugFoundBoxes = true;
+//						mPage.mDebugGraphics.setColor(new Color(0,0,255,128));
+//						mPage.mDebugGraphics.draw(box);
+//					}
 				}
 				else
 				{
-					if (debug)
-					{
-						debugFoundBoxes = true;
-						mPage.mDebugGraphics.setColor(new Color(255,0,0,128));
-						mPage.mDebugGraphics.drawLine(box.x, box.y, box.x+box.width, box.y+box.height);
-						mPage.mDebugGraphics.draw(box);
-					}
+//					if (debug)
+//					{
+//						debugFoundBoxes = true;
+//						mPage.mDebugGraphics.setColor(new Color(255,0,0,128));
+//						mPage.mDebugGraphics.drawLine(box.x, box.y, box.x+box.width, box.y+box.height);
+//						mPage.mDebugGraphics.draw(box);
+//					}
 				}
 			}
 		}
 
-		if (debug && !debugFoundBoxes)
-		{
-			for (TextBox box : mTextBoxes)
-			{
-				mPage.mDebugGraphics.setColor(new Color(0,255,0,128));
-				mPage.mDebugGraphics.drawRect(box.x, box.y, box.width-1, box.height-1);
-			}
-		}
+//		if (debug && !debugFoundBoxes)
+//		{
+//			for (TextBox box : mTextBoxes)
+//			{
+//				mPage.mDebugGraphics.setColor(new Color(0,255,0,128));
+//				mPage.mDebugGraphics.drawRect(box.x, box.y, box.width-1, box.height-1);
+//			}
+//		}
 
 		return results;
 	}
@@ -316,8 +304,6 @@ public class OCREngine
 
 	private void scanBox(TextBox aTextBox, TextBox aRootBox)
 	{
-		boolean debug = OCREngine.isDebugEnabled(mPage);
-
 		if (aTextBox.mChildren.size() > 0)
 		{
 			for (TextBox box : aTextBox.mChildren)
@@ -329,63 +315,22 @@ public class OCREngine
 		}
 		else
 		{
-			Result result = mCurvatureClassifier.classifySymbol(aTextBox, mResolver);
+			Result result = mCurvatureClassifier.classifySymbol(mPage, aTextBox, mResolver);
 
 			if (result == null || result.mSymbol == null)
 			{
-				if (debug)
-				{
-					mPage.mDebugGraphics.setFont(new Font("arial",Font.PLAIN, aTextBox.height));
-					mPage.mDebugGraphics.setColor(Color.MAGENTA);
-					mPage.mDebugGraphics.drawString("\u00bf", aTextBox.x, aTextBox.y+aTextBox.height*2/3);
-				}
+//				if (debug)
+//				{
+//					mPage.mDebugGraphics.setFont(new Font("arial",Font.PLAIN, aTextBox.height));
+//					mPage.mDebugGraphics.setColor(Color.MAGENTA);
+//					mPage.mDebugGraphics.drawString("\u00bf", aTextBox.x, aTextBox.y+aTextBox.height*2/3);
+//				}
 
 				return;
 			}
 
 			aTextBox.mResults.add(result);
 			aRootBox.mResults.add(result);
-		}
-	}
-
-
-	public static boolean isDebugEnabled(Page aPage)
-	{
-		if (aPage.mDebugGraphics == null)
-		{
-			return false;
-		}
-
-		StackTraceElement[] stackTrace = new Exception().getStackTrace();
-		String methodName = stackTrace[1].getMethodName();
-
-		switch (methodName)
-		{
-			case "-":
-			case "scan":
-			case "classifySymbol":
-
-//				return true;
-
-			case "extractCurvature":
-			case "findCharacterRectangles":
-			case "findTextRectangles":
-			case "scanBox":
-			case "splitTextBox":
-			case "scanPage":
-			case "getCharacterRanges":
-			case "splitCharacter":
-			case "extractContour":
-			case "extractSlopes":
-			case "extractCurvatureVector":
-			case "classifySymbolByCurvature":
-			case "classifySymbolByTemplate":
-			case "classifySymbolByContour":
-			case "learnSymbol":
-				return false;
-			default:
-				System.out.println("debugable method: " + methodName);
-				return false;
 		}
 	}
 

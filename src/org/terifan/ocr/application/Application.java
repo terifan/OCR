@@ -2,13 +2,16 @@ package org.terifan.ocr.application;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.terifan.ocr.Bitmap;
 import org.terifan.ocr.Page;
 import org.terifan.ocr.OCREngine;
 import org.terifan.ocr.Resolver;
@@ -22,22 +25,20 @@ public class Application
 	{
 		try
 		{
-//			Page page = new Page(Application.class.getResourceAsStream("samples/sample_01.png"));
-			Page page = new Page(Application.class.getResourceAsStream("samples/sample_02.png"));
+			Bitmap bitmap = new Bitmap(ImageIO.read(Application.class.getResource("samples/sample_02.png")));
+//			Bitmap bitmap = new Bitmap(ImageIO.read(Application.class.getResource("samples/sample_01.png")));
+			bitmap.eraseLines(0.5, 0);
 
-			page.eraseLines(0.5, 0);
-			page.updateImage();
+			Page page = new Page(bitmap);
 
 			OCREngine engine = new OCREngine();
-//			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial_ru_bold.png")));
-			engine.learnAlphabet("courier new", new Page(OCREngine.class.getResourceAsStream("fonts/alphabet_arial.png")));
+//			engine.learnAlphabet("courier new", new Page(new Bitmap(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial_ru_bold.png")))));
+			engine.learnAlphabet("courier new", new Bitmap(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial.png"))));
 			engine.setMinSymbolWidth(2);
 			engine.setMaxSymbolWidth(30);
 			engine.setMinSymbolHeight(10);
 			engine.setMaxSymbolHeight(35);
 			engine.setCharacterSpacingFraction(0.25);
-
-			page.initDebug();
 
 			engine.loadPage(0.0, 0.0, 1.0, 1.0, page);
 
@@ -46,7 +47,7 @@ public class Application
 
 			System.out.println(engine.scan(0.0, 0.0, 1.0, 1.0, resolver));
 
-			ImagePane imagePane = new ImagePane(page.getDebugImage());
+			ImagePane imagePane = new ImagePane(bitmap.getImage());
 //			imagePane.setInterpreterTool(new InterpreterTool()
 //			{
 //				@Override
@@ -98,15 +99,13 @@ public class Application
 			frame.setVisible(true);
 
 			splitPane.setDividerLocation(0.25);
-
-			page.writeDebug("d:/debug.png");
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace(System.out);
 		}
 	}
-
+ 
 
 	private static void buildTree(DefaultMutableTreeNode aNode, ArrayList<TextBox> aTextBoxes)
 	{

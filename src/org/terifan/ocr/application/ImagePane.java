@@ -111,7 +111,6 @@ class ImagePane extends JPanel
 	}
 
 
-
 	@Override
 	public Dimension getPreferredSize()
 	{
@@ -130,7 +129,7 @@ class ImagePane extends JPanel
 		mImage = aImage;
 		mScaledImage = null;
 		mScaleChanged = true;
-
+		
 		if (mImage == null)
 		{
 			mImageWidth = 0;
@@ -140,6 +139,16 @@ class ImagePane extends JPanel
 		{
 			mImageWidth = mImage.getWidth();
 			mImageHeight = mImage.getHeight();
+
+			if (mImage.getType() != BufferedImage.TYPE_INT_RGB)
+			{
+				BufferedImage tmp = new BufferedImage(mImageWidth, mImageHeight, BufferedImage.TYPE_INT_RGB);
+				Graphics2D g = tmp.createGraphics();
+				g.drawImage(aImage, 0, 0, null);
+				g.dispose();
+
+				mImage = tmp;
+			}
 		}
 
 		if (aResetView)
@@ -300,8 +309,8 @@ class ImagePane extends JPanel
 			if (mScale < 1)
 			{
 				tempImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-				int[] src = ((DataBufferInt) mImage.getRaster().getDataBuffer()).getData();
-				int[] dst = ((DataBufferInt) tempImage.getRaster().getDataBuffer()).getData();
+				int[] src = ((DataBufferInt)mImage.getRaster().getDataBuffer()).getData();
+				int[] dst = ((DataBufferInt)tempImage.getRaster().getDataBuffer()).getData();
 				resizeDown(src, mImage.getWidth(), mImage.getHeight(), dst, w, h, this);
 			}
 			else

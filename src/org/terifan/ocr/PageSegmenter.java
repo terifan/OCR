@@ -8,6 +8,11 @@ import java.util.ArrayList;
 
 class PageSegmenter
 {
+	private final static int SCAN_TOP = 1;
+	private final static int SCAN_LEFT = 2;
+	private final static int SCAN_BOTTOM = 4;
+	private final static int SCAN_RIGHT = 8;
+
 	private Page mPage;
 	public boolean mLearning; // TODO: remove
 
@@ -21,43 +26,41 @@ class PageSegmenter
 	{
 		mPage = aPage;
 
-		boolean debug = OCREngine.isDebugEnabled(mPage);
-
 		ArrayList<Rectangle> charRects = findCharacterRectangles(aFromX, aFromY, aToX, aToY, aMinSymbolWidth, aMaxLineWidth, aMinSymbolHeight, aMaxSymbolHeight);
 
-		if (debug)
-		{
-			for (Rectangle rect : charRects)
-			{
-				mPage.mDebugGraphics.setColor(new Color(255, 255, 0, 128));
-				mPage.mDebugGraphics.fill(rect);
-			}
-		}
+//		if (debug)
+//		{
+//			for (Rectangle rect : charRects)
+//			{
+//				mPage.mDebugGraphics.setColor(new Color(255, 255, 0, 128));
+//				mPage.mDebugGraphics.fill(rect);
+//			}
+//		}
 
 		ArrayList<TextBox> textBoxes = findTextRectangles(charRects, aCharacterSpacing, aMinSymbolHeight, aMaxSymbolHeight);
 
-		if (debug)
-		{
-			for (TextBox box : textBoxes)
-			{
-				mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 128));
-				mPage.mDebugGraphics.drawRect(box.x - 1, box.y - 1, box.width + 2, box.height + 2);
-			}
-		}
+//		if (debug)
+//		{
+//			for (TextBox box : textBoxes)
+//			{
+//				mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 128));
+//				mPage.mDebugGraphics.drawRect(box.x - 1, box.y - 1, box.width + 2, box.height + 2);
+//			}
+//		}
 
 		for (TextBox box : textBoxes)
 		{
 			splitTextBox(box, aCharacterAspectRatio, aMinSymbolWidth, aMaxSymbolWidth);
 		}
 
-		if (debug)
-		{
-			for (TextBox box : textBoxes)
-			{
-				mPage.mDebugGraphics.setColor(new Color(0, 255, 255, 128));
-				mPage.mDebugGraphics.drawRect(box.x - 2, box.y - 2, box.width + 4, box.height + 4);
-			}
-		}
+//		if (debug)
+//		{
+//			for (TextBox box : textBoxes)
+//			{
+//				mPage.mDebugGraphics.setColor(new Color(0, 255, 255, 128));
+//				mPage.mDebugGraphics.drawRect(box.x - 2, box.y - 2, box.width + 4, box.height + 4);
+//			}
+//		}
 
 		return textBoxes;
 	}
@@ -65,13 +68,11 @@ class PageSegmenter
 
 	private void splitTextBox(TextBox aTextBox, double aCharacterAspectRatio, int aMinSymbolWidth, int aMaxSymbolWidth)
 	{
-		boolean debug = OCREngine.isDebugEnabled(mPage);
-
-		if (debug)
-		{
-			mPage.mDebugGraphics.setColor(new Color(255, 255, 0, 128));
-			mPage.mDebugGraphics.drawRect(aTextBox.x - 1, aTextBox.y - 1, aTextBox.width + 2, aTextBox.height + 2);
-		}
+//		if (debug)
+//		{
+//			mPage.mDebugGraphics.setColor(new Color(255, 255, 0, 128));
+//			mPage.mDebugGraphics.drawRect(aTextBox.x - 1, aTextBox.y - 1, aTextBox.width + 2, aTextBox.height + 2);
+//		}
 
 		ArrayList<int[]> charRanges = getCharacterRanges(aTextBox);
 
@@ -82,7 +83,7 @@ class PageSegmenter
 			int x = range[0];
 			int width = range[1];
 
-			Insets borders = Tools.getBorders(mPage, aTextBox.x + x, aTextBox.y, width, aTextBox.height);
+			Insets borders = mPage.getBitmap().getBorders(aTextBox.x + x, aTextBox.y, width, aTextBox.height);
 
 			int symCount;
 
@@ -106,21 +107,19 @@ class PageSegmenter
 			}
 		}
 
-		if (debug)
-		{
-			for (TextBox tb : aTextBox.getChildren())
-			{
-				mPage.mDebugGraphics.setColor(new Color(0, 255, 0, 128));
-				mPage.mDebugGraphics.draw(tb);
-			}
-		}
+//		if (debug)
+//		{
+//			for (TextBox tb : aTextBox.getChildren())
+//			{
+//				mPage.mDebugGraphics.setColor(new Color(0, 255, 0, 128));
+//				mPage.mDebugGraphics.draw(tb);
+//			}
+//		}
 	}
 
 
 	private int splitCharacter(int aWidth, int aSymCount, TextBox aTextBox, int aX, int aMinSymbolWidth, int aCharIndex)
 	{
-		boolean debug = OCREngine.isDebugEnabled(mPage);
-
 		double sw = aWidth / (double)aSymCount;
 		int seekRange = aMinSymbolWidth / 4;
 		int prevSplit = 0;
@@ -151,11 +150,11 @@ class PageSegmenter
 
 			if (split > prevSplit && split - prevSplit > aMinSymbolWidth)
 			{
-				if (debug)
-				{
-					mPage.mDebugGraphics.setColor(new Color(255, 0, 255, 128));
-					mPage.mDebugGraphics.drawLine(aTextBox.x+split, aTextBox.y-3, aTextBox.x+split, aTextBox.y + aTextBox.height+4);
-				}
+//				if (debug)
+//				{
+//					mPage.mDebugGraphics.setColor(new Color(255, 0, 255, 128));
+//					mPage.mDebugGraphics.drawLine(aTextBox.x+split, aTextBox.y-3, aTextBox.x+split, aTextBox.y + aTextBox.height+4);
+//				}
 
 				int tmpX = aTextBox.x + aX + prevSplit - 1;
 				int tmpW = split - prevSplit;
@@ -173,12 +172,10 @@ class PageSegmenter
 
 		return aCharIndex;
 	}
-
+ 
 
 	private ArrayList<int[]> getCharacterRanges(TextBox aTextBox)
 	{
-		boolean debug = OCREngine.isDebugEnabled(mPage);
-
 		ArrayList<int[]> charRanges = new ArrayList<>();
 
 		for (int x = 0; x < aTextBox.width; x++)
@@ -205,13 +202,13 @@ class PageSegmenter
 
 			charRanges.add(new int[]{x, width});
 
-			if (debug)
-			{
-				mPage.mDebugGraphics.setColor(new Color(0, 0, 255, 128));
-				mPage.mDebugGraphics.drawLine(aTextBox.x + x, aTextBox.y, aTextBox.x + x, aTextBox.y + aTextBox.height + 5);
-				mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 128));
-				mPage.mDebugGraphics.drawLine(aTextBox.x + x + width, aTextBox.y - 5, aTextBox.x + x + width, aTextBox.y + aTextBox.height);
-			}
+//			if (debug)
+//			{
+//				mPage.mDebugGraphics.setColor(new Color(0, 0, 255, 128));
+//				mPage.mDebugGraphics.drawLine(aTextBox.x + x, aTextBox.y, aTextBox.x + x, aTextBox.y + aTextBox.height + 5);
+//				mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 128));
+//				mPage.mDebugGraphics.drawLine(aTextBox.x + x + width, aTextBox.y - 5, aTextBox.x + x + width, aTextBox.y + aTextBox.height);
+//			}
 
 			x += width;
 		}
@@ -252,36 +249,8 @@ class PageSegmenter
 	}
 
 
-	private boolean findPath(int x, int y, int h)
-	{
-		boolean[][] raster = mPage.getRaster();
-
-		for (; h > 0 && y > 0 && x > 0; y++, h--)
-		{
-			boolean b = raster[y][x] || raster[y - 1][x];
-
-			if (b)
-			{
-				b = raster[y - 1][x - 1] || raster[y + 1][x - 1];
-			}
-
-			if (b)
-			{
-				b = raster[y - 1][x + 1] || raster[y + 1][x + 1];
-			}
-
-			if (b)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-
 	private double scanLine(int x, int y, int h)
 	{
-		boolean[][] raster = mPage.getRaster();
 		int iw = mPage.getWidth();
 		int ih = mPage.getHeight();
 		int n = 0;
@@ -294,7 +263,7 @@ class PageSegmenter
 
 		for (int i = Math.max(y, 0), j = Math.min(y + h, ih); i < j; i++)
 		{
-			if (raster[i][x])
+			if (mPage.isBlack(x,i))
 			{
 				s++;
 			}
@@ -307,16 +276,14 @@ class PageSegmenter
 
 	private ArrayList<TextBox> findTextRectangles(ArrayList<Rectangle> aCharacterRectangles, double aCharacterSpacing, int aMinSymbolHeight, int aMaxSymbolHeight)
 	{
-		boolean debug = OCREngine.isDebugEnabled(mPage);
-
-		if (debug)
-		{
-			mPage.mDebugGraphics.setColor(new Color(0, 255, 0, 128));
-			for (Rectangle rect : aCharacterRectangles)
-			{
-				mPage.mDebugGraphics.draw(rect);
-			}
-		}
+//		if (debug)
+//		{
+//			mPage.mDebugGraphics.setColor(new Color(0, 255, 0, 128));
+//			for (Rectangle rect : aCharacterRectangles)
+//			{
+//				mPage.mDebugGraphics.draw(rect);
+//			}
+//		}
 
 		ArrayList<TextBox> textRects = new ArrayList<>();
 
@@ -356,11 +323,11 @@ class PageSegmenter
 					r.width += sw;
 					r.height = sh;
 
-					if (debug)
-					{
-						mPage.mDebugGraphics.setColor(new Color(255, 255, 0, 32));
-						mPage.mDebugGraphics.drawRect(r.x, r.y, r.width - 1, r.height - 1);
-					}
+//					if (debug)
+//					{
+//						mPage.mDebugGraphics.setColor(new Color(255, 255, 0, 32));
+//						mPage.mDebugGraphics.drawRect(r.x, r.y, r.width - 1, r.height - 1);
+//					}
 
 					if (q.intersects(r))
 					{
@@ -370,22 +337,6 @@ class PageSegmenter
 					}
 				}
 			}
-
-//			if (debug)
-//			{
-//				Rectangle tmp = new Rectangle(textBox);
-//
-//				int sw = sensorSize;
-//				int sh = tmp.height/2;
-//
-//				tmp.x -= sw/2;
-//				tmp.y += tmp.height/2-sh/2;
-//				tmp.width += sw;
-//				tmp.height = sh;
-//
-//				mPage.mDebugGraphics.setColor(new Color(0,0,255,128));
-//				mPage.mDebugGraphics.draw(tmp);
-//			}
 		}
 
 		// remove text boxes that violate size requirements
@@ -397,23 +348,23 @@ class PageSegmenter
 			{
 				textRects.remove(i);
 
-				if (debug)
-				{
-					mPage.mDebugGraphics.setColor(new Color(255, 0, 0));
-					mPage.mDebugGraphics.draw(rect);
-					mPage.mDebugGraphics.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);
-				}
+//				if (debug)
+//				{
+//					mPage.mDebugGraphics.setColor(new Color(255, 0, 0));
+//					mPage.mDebugGraphics.draw(rect);
+//					mPage.mDebugGraphics.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);
+//				}
 			}
 		}
 
-		if (debug)
-		{
-			mPage.mDebugGraphics.setColor(new Color(0, 255, 0, 64));
-			for (Rectangle rect : textRects)
-			{
-				mPage.mDebugGraphics.draw(rect);
-			}
-		}
+//		if (debug)
+//		{
+//			mPage.mDebugGraphics.setColor(new Color(0, 255, 0, 64));
+//			for (Rectangle rect : textRects)
+//			{
+//				mPage.mDebugGraphics.draw(rect);
+//			}
+//		}
 
 		return textRects;
 	}
@@ -421,8 +372,6 @@ class PageSegmenter
 
 	private ArrayList<Rectangle> findCharacterRectangles(double aFromX, double aFromY, double aToX, double aToY, int aMinWidth, int aMaxWidth, int aMinHeight, int aMaxHeight)
 	{
-		boolean debug = OCREngine.isDebugEnabled(mPage);
-
 		ArrayList<Rectangle> rects = new ArrayList<>();
 
 		int minX = (int)(aFromX * mPage.getWidth()) + 1;
@@ -434,7 +383,7 @@ class PageSegmenter
 		{
 			for (int ix = minX; ix < maxX; ix++)
 			{
-				if (mPage.getRaster(ix, iy) && !mPage.getRaster(ix, iy - 1))
+				if (mPage.isBlack(ix, iy) && !mPage.isBlack(ix, iy - 1))
 				{
 					int x = ix;
 					int y = iy;
@@ -505,25 +454,25 @@ class PageSegmenter
 
 						if (mLearning || !rects.contains(r))
 						{
-							if (debug)
-							{
-								mPage.mDebugGraphics.setColor(new Color(0, 255, 0, 128));
-								mPage.mDebugGraphics.draw(r);
-							}
+//							if (debug)
+//							{
+//								mPage.mDebugGraphics.setColor(new Color(0, 255, 0, 128));
+//								mPage.mDebugGraphics.draw(r);
+//							}
 
 							rects.add(r);
 						}
 					}
 					else
 					{
-						if (debug)
-						{
-//							Log.out.println(w + " >= " + aMinWidth + " && " + w + " <= " + aMaxWidth + " && " + h + " >= " + aMinHeight + " && " + h + " <= " + aMaxHeight);
-
-							mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 128));
-							mPage.mDebugGraphics.drawRect(x, y, w, h);
-							mPage.mDebugGraphics.drawLine(x, y, x + w, y + h);
-						}
+//						if (debug)
+//						{
+////							Log.out.println(w + " >= " + aMinWidth + " && " + w + " <= " + aMaxWidth + " && " + h + " >= " + aMinHeight + " && " + h + " <= " + aMaxHeight);
+//
+//							mPage.mDebugGraphics.setColor(new Color(255, 0, 0, 128));
+//							mPage.mDebugGraphics.drawRect(x, y, w, h);
+//							mPage.mDebugGraphics.drawLine(x, y, x + w, y + h);
+//						}
 					}
 				}
 			}
@@ -542,22 +491,22 @@ class PageSegmenter
 
 		for (int i = 0; i < w; i++)
 		{
-			if (!top && mPage.getRaster(x + i, y))
+			if (!top && mPage.isBlack(x + i, y))
 			{
 				top = true;
 			}
-			if (!bottom && mPage.getRaster(x + i, y + h))
+			if (!bottom && mPage.isBlack(x + i, y + h))
 			{
 				bottom = true;
 			}
 		}
 		for (int i = 0; i < h; i++)
 		{
-			if (!left && mPage.getRaster(x, y + i))
+			if (!left && mPage.isBlack(x, y + i))
 			{
 				left = true;
 			}
-			if (!right && mPage.getRaster(x + w, y + i))
+			if (!right && mPage.isBlack(x + w, y + i))
 			{
 				right = true;
 			}
@@ -565,9 +514,4 @@ class PageSegmenter
 
 		return (top ? SCAN_TOP : 0) + (right ? SCAN_RIGHT : 0) + (bottom ? SCAN_BOTTOM : 0) + (left ? SCAN_LEFT : 0);
 	}
-
-	private final static int SCAN_TOP = 1;
-	private final static int SCAN_LEFT = 2;
-	private final static int SCAN_BOTTOM = 4;
-	private final static int SCAN_RIGHT = 8;
 }
