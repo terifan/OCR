@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
 
- 
+
 public class Bitmap
 {
 	public final static byte BLACK = 0;
@@ -568,7 +568,7 @@ public class Bitmap
 	}
 
 
-	BufferedImage getRegion(int x0, int y0, int x1, int y1)
+	public BufferedImage getRegion(int x0, int y0, int x1, int y1)
 	{
 		return mImage.getSubimage(x0, y0, x1-x0, y1-y0);
 	}

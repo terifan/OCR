@@ -2,10 +2,11 @@ package org.terifan.ocr.application;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -61,6 +62,8 @@ public class Application
 //				}
 //			});
 
+			ImagePane imagePane2 = new ImagePane(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
+
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 			buildTree(root, engine.getTextBoxes());
 			JTree tree = new JTree(root);
@@ -70,16 +73,16 @@ public class Application
 				if (tb != null)
 				{
 					imagePane.setImageOverlay(g->{
-//						g.setColor(new Color(255,0,0,128));
-//						g.fill(tb);
 						g.setColor(new Color(255,255,0,128));
+						if (tb.getChildren().isEmpty())
+						{
+							g.fillRect(tb.x, tb.y, tb.width+1, tb.height+1);
+
+							imagePane2.setImage(bitmap.getRegion(tb.x, tb.y, tb.x+tb.width, tb.y+tb.height));
+						}
 						for (TextBox tb1 : tb.getChildren())
 						{
-							g.fill(tb1);
-//							g.drawLine(tb1.x, tb1.y, tb1.x+tb1.width, tb1.y);
-//							g.drawLine(tb1.x, tb1.y, tb1.x, tb1.y+tb1.height);
-//							g.drawLine(tb1.x, tb1.y+tb1.height, tb1.x+tb1.width, tb1.y+tb1.height);
-//							g.drawLine(tb1.x+tb1.width, tb1.y, tb1.x+tb1.width, tb1.y+tb1.height);
+							g.fillRect(tb1.x, tb1.y, tb1.width+1, tb1.height+1);
 						}
 					});
 					imagePane.repaint();
@@ -89,7 +92,8 @@ public class Application
 			JPanel controlPane = new JPanel(new BorderLayout());
 			controlPane.add(new JScrollPane(tree), BorderLayout.CENTER);
 
-			JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, controlPane, imagePane);
+			JSplitPane splitPaneH = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePane, imagePane2);
+			JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, controlPane, splitPaneH);
 
 			JFrame frame = new JFrame();
 			frame.add(splitPane);
@@ -99,13 +103,14 @@ public class Application
 			frame.setVisible(true);
 
 			splitPane.setDividerLocation(0.25);
+			splitPaneH.setDividerLocation(0.85);
 		}
 		catch (Throwable e)
 		{
 			e.printStackTrace(System.out);
 		}
 	}
- 
+
 
 	private static void buildTree(DefaultMutableTreeNode aNode, ArrayList<TextBox> aTextBoxes)
 	{
@@ -114,7 +119,7 @@ public class Application
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(textBox);
 			aNode.add(node);
 
-//			buildTree(node, textBox.getChildren());
+			buildTree(node, textBox.getChildren());
 		}
 	}
 }
