@@ -14,8 +14,9 @@ class PageSegmenter
 	private final static int SCAN_RIGHT = 8;
 
 	private Page mPage;
-	public boolean mLearning; // TODO: remove
-
+	private ArrayList<Rectangle> mCharacterRectangles;
+	private ArrayList<TextBox> mWordRectangles;
+	
 
 	public PageSegmenter()
 	{
@@ -25,17 +26,19 @@ class PageSegmenter
 	public ArrayList<TextBox> scanPage(double aFromX, double aFromY, double aToX, double aToY, Page aPage, double aCharacterAspectRatio, double aCharacterSpacing, int aMinSymbolWidth, int aMaxSymbolWidth, int aMinSymbolHeight, int aMaxSymbolHeight, int aMaxLineWidth)
 	{
 		mPage = aPage;
+		mCharacterRectangles = new ArrayList<>();
+		mWordRectangles = new ArrayList<>();
 
-		ArrayList<Rectangle> charRects = findCharacterRectangles(aFromX, aFromY, aToX, aToY, aMinSymbolWidth, aMaxLineWidth, aMinSymbolHeight, aMaxSymbolHeight);
+		findCharacterRectangles(aFromX, aFromY, aToX, aToY, aMinSymbolWidth, aMaxLineWidth, aMinSymbolHeight, aMaxSymbolHeight);
 
-		ArrayList<TextBox> textBoxes = findWordRectangles(charRects, aCharacterSpacing, aMinSymbolHeight, aMaxSymbolHeight);
+		findWordRectangles(aCharacterSpacing, aMinSymbolHeight, aMaxSymbolHeight);
 
-		for (TextBox box : textBoxes)
+		for (TextBox box : mWordRectangles)
 		{
 			splitTextBox(box, aCharacterAspectRatio, aMinSymbolWidth, aMaxSymbolWidth);
 		}
 
-		return textBoxes;
+		return mWordRectangles;
 	}
 
 
@@ -202,19 +205,17 @@ class PageSegmenter
 	/**
 	 * Combine characters into words
 	 */
-	private ArrayList<TextBox> findWordRectangles(ArrayList<Rectangle> aCharacterRectangles, double aCharacterSpacing, int aMinSymbolHeight, int aMaxSymbolHeight)
+	private void findWordRectangles(double aCharacterSpacing, int aMinSymbolHeight, int aMaxSymbolHeight)
 	{
-		ArrayList<TextBox> result = new ArrayList<>();
-
 		Rectangle r = new Rectangle();
 		Rectangle q = new Rectangle();
 
 		int sensorSize = (int)aCharacterSpacing;
 
-		while (!aCharacterRectangles.isEmpty())
+		while (!mCharacterRectangles.isEmpty())
 		{
-			TextBox textBox = new TextBox(aCharacterRectangles.remove(0));
-			result.add(textBox);
+			TextBox textBox = new TextBox(mCharacterRectangles.remove(0));
+			mWordRectangles.add(textBox);
 
 			for (boolean stop = false; !stop;)
 			{
@@ -230,9 +231,9 @@ class PageSegmenter
 
 				stop = true;
 
-				for (int i = 0; i < aCharacterRectangles.size(); i++)
+				for (int i = 0; i < mCharacterRectangles.size(); i++)
 				{
-					r.setBounds(aCharacterRectangles.get(i));
+					r.setBounds(mCharacterRectangles.get(i));
 
 					sw = sensorSize;
 					sh = r.height / 2;
@@ -244,7 +245,7 @@ class PageSegmenter
 
 					if (q.intersects(r))
 					{
-						textBox.add(aCharacterRectangles.remove(i));
+						textBox.add(mCharacterRectangles.remove(i));
 						stop = false;
 						break;
 					}
@@ -253,24 +254,20 @@ class PageSegmenter
 		}
 
 		// remove text boxes that violate size requirements
-		for (int i = result.size(); --i >= 0;)
+		for (int i = mWordRectangles.size(); --i >= 0;)
 		{
-			TextBox rect = result.get(i);
+			TextBox rect = mWordRectangles.get(i);
 
 			if (rect.height < aMinSymbolHeight || rect.height > aMaxSymbolHeight || rect.width == 0)
 			{
-				result.remove(i);
+				mWordRectangles.remove(i);
 			}
 		}
-
-		return result;
 	}
 
 
-	private ArrayList<Rectangle> findCharacterRectangles(double aFromX, double aFromY, double aToX, double aToY, int aMinWidth, int aMaxWidth, int aMinHeight, int aMaxHeight)
+	private void findCharacterRectangles(double aFromX, double aFromY, double aToX, double aToY, int aMinWidth, int aMaxWidth, int aMinHeight, int aMaxHeight)
 	{
-		ArrayList<Rectangle> rects = new ArrayList<>();
-
 		int minX = (int)(aFromX * mPage.getWidth()) + 1;
 		int minY = (int)(aFromY * mPage.getHeight()) + 1;
 		int maxX = (int)(aToX * mPage.getWidth()) - 1;
@@ -349,9 +346,9 @@ class PageSegmenter
 					{
 						Rectangle r = new Rectangle(x, y, w, h);
 
-						if (mLearning || !rects.contains(r))
+						if (!mCharacterRectangles.contains(r))
 						{
-							rects.add(r);
+							mCharacterRectangles.add(r);
 						}
 					}
 					else
@@ -361,8 +358,6 @@ class PageSegmenter
 				}
 			}
 		}
-
-		return rects;
 	}
 
 
