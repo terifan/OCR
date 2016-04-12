@@ -2,6 +2,7 @@ package org.terifan.ocr.application;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
@@ -16,6 +17,7 @@ import org.terifan.ocr.Bitmap;
 import org.terifan.ocr.Page;
 import org.terifan.ocr.OCREngine;
 import org.terifan.ocr.Resolver;
+import org.terifan.ocr.Settings;
 import org.terifan.ocr.SimpleResolver;
 import org.terifan.ocr.TextBox;
 
@@ -32,21 +34,23 @@ public class Application
 
 			Page page = new Page(bitmap);
 
+			Settings settings = new Settings();
+			settings.setMinSymbolWidth(2);
+			settings.setMaxSymbolWidth(30);
+			settings.setMinSymbolHeight(10);
+			settings.setMaxSymbolHeight(35);
+			settings.setCharacterSpacingFraction(0.25, page);
+
 			OCREngine engine = new OCREngine();
 //			engine.learnAlphabet("courier new", new Page(new Bitmap(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial_ru_bold.png")))));
 			engine.learnAlphabet("courier new", new Bitmap(ImageIO.read(OCREngine.class.getResource("fonts/alphabet_arial.png"))));
-			engine.setMinSymbolWidth(2);
-			engine.setMaxSymbolWidth(30);
-			engine.setMinSymbolHeight(10);
-			engine.setMaxSymbolHeight(35);
-			engine.setCharacterSpacingFraction(0.25);
 
-			engine.loadPage(0.0, 0.0, 1.0, 1.0, page);
+			engine.loadPage(page, settings, 0.0, 0.0, 1.0, 1.0);
 
 			Resolver resolver = new SimpleResolver();
 //			Resolver resolver = new WaybillResolver();
 
-			System.out.println(engine.scan(0.0, 0.0, 1.0, 1.0, resolver));
+			engine.scan(0.0, 0.0, 1.0, 1.0, resolver);
 
 			ImagePane imagePane = new ImagePane(bitmap.getImage());
 //			imagePane.setInterpreterTool(new InterpreterTool()
@@ -63,6 +67,7 @@ public class Application
 //			});
 
 			ImagePane imagePane2 = new ImagePane(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
+			ImagePane imagePane3 = new ImagePane(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
 
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 			buildTree(root, engine.getTextBoxes());
@@ -79,6 +84,7 @@ public class Application
 							g.fillRect(tb.x, tb.y, tb.width+1, tb.height+1);
 
 							imagePane2.setImage(bitmap.getRegion(tb.x, tb.y, tb.x+tb.width, tb.y+tb.height));
+							imagePane3.setImage(bitmap.getRegion(tb.x, tb.y, tb.x+tb.width, tb.y+tb.height));
 						}
 						for (TextBox tb1 : tb.getChildren())
 						{
@@ -92,7 +98,11 @@ public class Application
 			JPanel controlPane = new JPanel(new BorderLayout());
 			controlPane.add(new JScrollPane(tree), BorderLayout.CENTER);
 
-			JSplitPane splitPaneH = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePane, imagePane2);
+			JPanel charPanel = new JPanel(new GridLayout(1, 2));
+			charPanel.add(imagePane2);
+			charPanel.add(imagePane3);
+
+			JSplitPane splitPaneH = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePane, charPanel);
 			JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, controlPane, splitPaneH);
 
 			JFrame frame = new JFrame();
@@ -103,7 +113,7 @@ public class Application
 			frame.setVisible(true);
 
 			splitPane.setDividerLocation(0.25);
-			splitPaneH.setDividerLocation(0.85);
+			splitPaneH.setDividerLocation(0.80);
 		}
 		catch (Throwable e)
 		{

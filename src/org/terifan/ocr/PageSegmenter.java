@@ -14,35 +14,38 @@ class PageSegmenter
 	private final static int SCAN_RIGHT = 8;
 
 	private Page mPage;
+	private Settings mSettings;
 	private ArrayList<Rectangle> mCharacterRectangles;
 	private ArrayList<TextBox> mWordRectangles;
-	
+
 
 	public PageSegmenter()
 	{
 	}
 
 
-	public ArrayList<TextBox> scanPage(double aFromX, double aFromY, double aToX, double aToY, Page aPage, double aCharacterAspectRatio, double aCharacterSpacing, int aMinSymbolWidth, int aMaxSymbolWidth, int aMinSymbolHeight, int aMaxSymbolHeight, int aMaxLineWidth)
+	public ArrayList<TextBox> scanPage(double aFromX, double aFromY, double aToX, double aToY, Page aPage, Settings aSettings)
 	{
 		mPage = aPage;
+		mSettings = aSettings;
+
 		mCharacterRectangles = new ArrayList<>();
 		mWordRectangles = new ArrayList<>();
 
-		findCharacterRectangles(aFromX, aFromY, aToX, aToY, aMinSymbolWidth, aMaxLineWidth, aMinSymbolHeight, aMaxSymbolHeight);
+		findCharacterRectangles(aFromX, aFromY, aToX, aToY);
 
-		findWordRectangles(aCharacterSpacing, aMinSymbolHeight, aMaxSymbolHeight);
+		findWordRectangles();
 
 		for (TextBox box : mWordRectangles)
 		{
-			splitTextBox(box, aCharacterAspectRatio, aMinSymbolWidth, aMaxSymbolWidth);
+			splitTextBox(box);
 		}
 
 		return mWordRectangles;
 	}
 
 
-	private void splitTextBox(TextBox aTextBox, double aCharacterAspectRatio, int aMinSymbolWidth, int aMaxSymbolWidth)
+	private void splitTextBox(TextBox aTextBox)
 	{
 		ArrayList<int[]> charRanges = getCharacterRanges(aTextBox);
 
@@ -63,7 +66,7 @@ class PageSegmenter
 			}
 			else
 			{
-				symCount = (int)Math.ceil(width / (aCharacterAspectRatio * (aTextBox.height - borders.top - borders.bottom)));
+				symCount = (int)Math.ceil(width / (mSettings.getCharacterAspectRatio() * (aTextBox.height - borders.top - borders.bottom)));
 			}
 
 			if (width > 0 && symCount <= 1)
@@ -73,16 +76,16 @@ class PageSegmenter
 			}
 			else if (width > 0)
 			{
-				charIndex = splitCharacter(width, symCount, aTextBox, x, aMinSymbolWidth, charIndex);
+				charIndex = splitCharacter(width, symCount, aTextBox, x, charIndex);
 			}
 		}
 	}
 
 
-	private int splitCharacter(int aWidth, int aSymCount, TextBox aTextBox, int aX, int aMinSymbolWidth, int aCharIndex)
+	private int splitCharacter(int aWidth, int aSymCount, TextBox aTextBox, int aX, int aCharIndex)
 	{
 		double sw = aWidth / (double)aSymCount;
-		int seekRange = aMinSymbolWidth / 4;
+		int seekRange = mSettings.getMinSymbolWidth() / 4;
 		int prevSplit = 0;
 
 		for (int si = 1; si < aSymCount; si++)
@@ -109,7 +112,7 @@ class PageSegmenter
 				}
 			}
 
-			if (split > prevSplit && split - prevSplit > aMinSymbolWidth)
+			if (split > prevSplit && split - prevSplit > mSettings.getMinSymbolWidth())
 			{
 				int tmpX = aTextBox.x + aX + prevSplit - 1;
 				int tmpW = split - prevSplit;
@@ -120,14 +123,14 @@ class PageSegmenter
 			prevSplit = split;
 		}
 
-		if (aWidth - prevSplit > aMinSymbolWidth)
+		if (aWidth - prevSplit > mSettings.getMinSymbolWidth())
 		{
 			aTextBox.mChildren.add(new TextBox(aTextBox, aCharIndex++, aTextBox.x + aX + prevSplit, aTextBox.y, aWidth - prevSplit, aTextBox.height));
 		}
 
 		return aCharIndex;
 	}
- 
+
 
 	private ArrayList<int[]> getCharacterRanges(TextBox aTextBox)
 	{
@@ -205,12 +208,12 @@ class PageSegmenter
 	/**
 	 * Combine characters into words
 	 */
-	private void findWordRectangles(double aCharacterSpacing, int aMinSymbolHeight, int aMaxSymbolHeight)
+	private void findWordRectangles()
 	{
 		Rectangle r = new Rectangle();
 		Rectangle q = new Rectangle();
 
-		int sensorSize = (int)aCharacterSpacing;
+		int sensorSize = (int)mSettings.getCharacterSpacing();
 
 		while (!mCharacterRectangles.isEmpty())
 		{
@@ -258,7 +261,7 @@ class PageSegmenter
 		{
 			TextBox rect = mWordRectangles.get(i);
 
-			if (rect.height < aMinSymbolHeight || rect.height > aMaxSymbolHeight || rect.width == 0)
+			if (rect.height < mSettings.getMinSymbolHeight() || rect.height > mSettings.getMaxSymbolHeight() || rect.width == 0)
 			{
 				mWordRectangles.remove(i);
 			}
@@ -266,7 +269,7 @@ class PageSegmenter
 	}
 
 
-	private void findCharacterRectangles(double aFromX, double aFromY, double aToX, double aToY, int aMinWidth, int aMaxWidth, int aMinHeight, int aMaxHeight)
+	private void findCharacterRectangles(double aFromX, double aFromY, double aToX, double aToY)
 	{
 		int minX = (int)(aFromX * mPage.getWidth()) + 1;
 		int minY = (int)(aFromY * mPage.getHeight()) + 1;
@@ -286,7 +289,7 @@ class PageSegmenter
 
 					// notice: allow the symbol to grow larger than the rule so that it can fail in the test below
 					// this way lines and grahpics can be filtered out.
-					while (h < aMaxHeight + 3 && w < aMaxWidth + 3)
+					while (h < mSettings.getMaxSymbolHeight() + 3 && w < mSettings.getMaxSymbolWidth() + 3)
 					{
 						int s = scanBounds(x, y, w, h);
 
@@ -314,7 +317,7 @@ class PageSegmenter
 						}
 					}
 
-					while (h > aMinHeight && w > aMinWidth)
+					while (h > mSettings.getMinSymbolHeight() && w > mSettings.getMinSymbolWidth())
 					{
 						int s = scanBounds(x, y, w, h);
 
@@ -342,7 +345,7 @@ class PageSegmenter
 						}
 					}
 
-					if (w >= aMinWidth && w <= aMaxWidth && h >= aMinHeight && h <= aMaxHeight)
+					if (w >= mSettings.getMinSymbolWidth() && w <= mSettings.getMaxSymbolWidth() && h >= mSettings.getMinSymbolHeight() && h <= mSettings.getMaxSymbolHeight())
 					{
 						Rectangle r = new Rectangle(x, y, w, h);
 
