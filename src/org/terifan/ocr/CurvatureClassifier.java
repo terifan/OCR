@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class CurvatureClassifier
+class CurvatureClassifier
 {
 	private final static int MATRIX_SIZE = 16;
 	private final static double ONE_THIRD_MATRIX = MATRIX_SIZE / 3.0;
@@ -20,19 +20,12 @@ public class CurvatureClassifier
 		+ "0123456789@+'" + "/\\\"*.-:,&()=*";
 
 	private ArrayList<Symbol> mSymbols;
-	private boolean mPrintCharacters;
 	private Page mPage;
 
 
 	public CurvatureClassifier()
 	{
 		reset();
-	}
-
-
-	public void setPrintCharacters(boolean aPrintCharacters)
-	{
-		mPrintCharacters = aPrintCharacters;
 	}
 
 
@@ -776,7 +769,7 @@ public class CurvatureClassifier
 			character = "" + aAlphabet.charAt(charIndex);
 			defCharacter = "" + aDefaultAlphabet.charAt(charIndex);
 		}
- 
+
 		symbol.mFontName = aFontName;
 		symbol.mCharacter = character;
 		symbol.mDefCharacter = defCharacter;

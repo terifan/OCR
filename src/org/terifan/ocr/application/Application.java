@@ -81,14 +81,14 @@ public class Application
 						g.setColor(new Color(255,255,0,128));
 						if (tb.getChildren().isEmpty())
 						{
-							g.fillRect(tb.x, tb.y, tb.width+1, tb.height+1);
+							g.fillRect(tb.x, tb.y, tb.width, tb.height);
 
-							imagePane2.setImage(bitmap.getRegion(tb.x, tb.y, tb.x+tb.width, tb.y+tb.height));
+							imagePane2.setImage(engine.getBitmap(tb));
 							imagePane3.setImage(bitmap.getRegion(tb.x, tb.y, tb.x+tb.width, tb.y+tb.height));
 						}
 						for (TextBox tb1 : tb.getChildren())
 						{
-							g.fillRect(tb1.x, tb1.y, tb1.width+1, tb1.height+1);
+							g.fillRect(tb1.x, tb1.y, tb1.width, tb1.height);
 						}
 					});
 					imagePane.repaint();

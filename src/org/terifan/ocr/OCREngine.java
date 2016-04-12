@@ -1,6 +1,7 @@
 package org.terifan.ocr;
 
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 
@@ -107,12 +108,12 @@ public class OCREngine
 		{
 			if (box.x + box.width > mPage.getWidth() * aFromX && box.y + box.height > mPage.getHeight() * aFromY && box.x < mPage.getWidth() * aToX && box.y < mPage.getHeight() * aToY)
 			{
-				box.mResults.clear();
+				box.getResults().clear();
 
 				scanBox(box, box);
 
-				box.mResolver = aResolver;
-				box.mComplete = true;
+				box.setResolver(aResolver);
+				box.setComplete(true);
 
 				if (aResolver.acceptWord(mPage, box))
 				{
@@ -129,7 +130,7 @@ public class OCREngine
 
 	private void scanBox(TextBox aTextBox, TextBox aRootBox)
 	{
-		if (aTextBox.mChildren.isEmpty())
+		if (aTextBox.getChildren().isEmpty())
 		{
 			Result result = mCurvatureClassifier.classifySymbol(mPage, aTextBox, mResolver);
 
@@ -138,24 +139,18 @@ public class OCREngine
 				return;
 			}
 
-			aTextBox.mResults.add(result);
-			aRootBox.mResults.add(result); // ?????
+			aTextBox.getResults().add(result);
+			aRootBox.getResults().add(result); // ?????
 		}
 		else
 		{
-			for (TextBox box : aTextBox.mChildren)
+			for (TextBox box : aTextBox.getChildren())
 			{
-				box.mResults.clear();
+				box.getResults().clear();
 
 				scanBox(box, aRootBox);
 			}
 		}
-	}
-
-
-	public void setPrintCharacters(boolean aPrintCharacters)
-	{
-		mCurvatureClassifier.setPrintCharacters(aPrintCharacters);
 	}
 
 
@@ -168,5 +163,11 @@ public class OCREngine
 	public ArrayList<TextBox> getScanResult()
 	{
 		return mScanResult;
+	}
+
+
+	public BufferedImage getBitmap(TextBox aTextBox)
+	{
+		return mPage.getBitmap().getRegion(aTextBox.x, aTextBox.y, aTextBox.x + aTextBox.width, aTextBox.y + aTextBox.height);
 	}
 }

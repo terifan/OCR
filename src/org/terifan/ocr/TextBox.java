@@ -6,15 +6,15 @@ import java.util.ArrayList;
 
 public class TextBox extends Rectangle
 {
-	protected ArrayList<TextBox> mChildren = new ArrayList<>();
-	protected ArrayList<Result> mResults = new ArrayList<>();
-	protected int mIndex; // relative to first TextBox in root TextBox
-	protected TextBox mParent;
-	protected boolean mComplete;
-	protected Resolver mResolver;
+	private ArrayList<TextBox> mChildren = new ArrayList<>();
+	private ArrayList<Result> mResults = new ArrayList<>();
+	private int mIndex; // relative to first TextBox in root TextBox
+	private TextBox mParent;
+	private boolean mComplete;
+	private Resolver mResolver;
 
 
-	public TextBox(TextBox aParent, int aIndex, int x, int y, int w, int h)
+	TextBox(TextBox aParent, int aIndex, int x, int y, int w, int h)
 	{
 		super(x, y, w, h);
 
@@ -28,21 +28,15 @@ public class TextBox extends Rectangle
 	}
 
 
-	public TextBox(Rectangle rect)
+	TextBox(Rectangle rect)
 	{
 		super(rect);
 	}
 
 
-	@Override
-	public String toString()
+	public TextBox getParent()
 	{
-		StringBuilder word = new StringBuilder();
-		for (Result r : mResults)
-		{
-			word.append(r.mSymbol.mCharacter);
-		}
-		return word.toString();
+		return mParent;
 	}
 
 
@@ -57,9 +51,39 @@ public class TextBox extends Rectangle
 	}
 
 
+	Resolver getResolver()
+	{
+		return mResolver;
+	}
+
+
+	void setResolver(Resolver aResolver)
+	{
+		this.mResolver = aResolver;
+	}
+
+
+	public boolean isComplete()
+	{
+		return mComplete;
+	}
+
+
+	void setComplete(boolean aComplete)
+	{
+		mComplete = aComplete;
+	}
+
+
 	public int getIndex()
 	{
 		return mIndex;
+	}
+
+
+	public void addChild(TextBox aTextBox)
+	{
+		mChildren.add(aTextBox);
 	}
 
 
@@ -87,6 +111,18 @@ public class TextBox extends Rectangle
 		for (Result r : mResults)
 		{
 			word.append(r.mSymbol.mDefCharacter);
+		}
+		return word.toString();
+	}
+
+
+	@Override
+	public String toString()
+	{
+		StringBuilder word = new StringBuilder();
+		for (Result r : mResults)
+		{
+			word.append(r.mSymbol.mCharacter);
 		}
 		return word.toString();
 	}
