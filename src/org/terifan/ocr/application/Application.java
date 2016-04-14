@@ -2,12 +2,15 @@ package org.terifan.ocr.application;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.CENTER;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -83,12 +86,12 @@ public class Application
 						{
 							g.fillRect(tb.x, tb.y, tb.width, tb.height);
 
-							imagePane2.setImage(engine.getBitmap(tb));
-							imagePane3.setImage(bitmap.getRegion(tb.x, tb.y, tb.x+tb.width, tb.y+tb.height));
+							imagePane2.setImage(tb.getBitmap());
+							imagePane3.setImage(tb.getSymbolBitmap());
 						}
 						for (TextBox tb1 : tb.getChildren())
 						{
-							g.fillRect(tb1.x, tb1.y, tb1.width, tb1.height);
+							g.fill(tb1);
 						}
 					});
 					imagePane.repaint();
@@ -98,9 +101,17 @@ public class Application
 			JPanel controlPane = new JPanel(new BorderLayout());
 			controlPane.add(new JScrollPane(tree), BorderLayout.CENTER);
 
-			JPanel charPanel = new JPanel(new GridLayout(1, 2));
-			charPanel.add(imagePane2);
-			charPanel.add(imagePane3);
+			JPanel charPanel = new JPanel(new GridBagLayout());
+			GridBagConstraints gc = new GridBagConstraints();
+			gc.gridx = 0;
+			gc.gridy = 0;
+			gc.weightx = 1.0;
+			gc.weighty = 1.0;
+			gc.fill = BOTH;
+			gc.anchor = CENTER;
+			charPanel.add(imagePane2, gc);
+			gc.gridx = 1;
+			charPanel.add(imagePane3, gc);
 
 			JSplitPane splitPaneH = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imagePane, charPanel);
 			JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, controlPane, splitPaneH);
@@ -113,7 +124,7 @@ public class Application
 			frame.setVisible(true);
 
 			splitPane.setDividerLocation(0.25);
-			splitPaneH.setDividerLocation(0.80);
+			splitPaneH.setDividerLocation(0.50);
 		}
 		catch (Throwable e)
 		{

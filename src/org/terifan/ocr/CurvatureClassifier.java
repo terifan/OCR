@@ -1,5 +1,7 @@
 package org.terifan.ocr;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Polygon;
@@ -12,7 +14,7 @@ import java.util.Collections;
 
 class CurvatureClassifier
 {
-	private final static int MATRIX_SIZE = 16;
+	private final static int MATRIX_SIZE = 18;
 	private final static double ONE_THIRD_MATRIX = MATRIX_SIZE / 3.0;
 	public final static String DEFAULT_ALPHABET =
 		  "ABCDEFGHIJKLM" + "NOPQRSTUVWXYZ"
@@ -75,7 +77,9 @@ class CurvatureClassifier
 
 		BufferedImage tmp = aBitmap.getRegion(box.x + borders.left, box.y + borders.top, box.x + box.width - borders.right + 1, box.y + box.height - borders.bottom + 1);
 
-		tmp = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_BYTE_GRAY);
+		box.setBitmap(tmp);
+
+		tmp = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_BYTE_BINARY);
 
 		aSymbol.setBitmap(new Bitmap(tmp));
 	}
@@ -204,8 +208,6 @@ class CurvatureClassifier
 
 		for (int orientation = 0; orientation < 8; orientation++)
 		{
-			boolean hor = (orientation == 2 || orientation == 3 || orientation == 6 || orientation == 7);
-
 			for (int index = 0; index < MATRIX_SIZE; index++)
 			{
 				double b = (int)(contour[orientation][index]);
@@ -215,136 +217,68 @@ class CurvatureClassifier
 				if (b == -1 || b == MATRIX_SIZE)
 				{
 					slopes[orientation][index] = -1;
-//					if (debug)
-//					{
-//						System.out.print("#");
-//					}
 				}
 				else if (a == b && b == c)
 				{
 					slopes[orientation][index] = 0;
-//					if (debug)
-//					{
-//						System.out.print(hor ? "-" : "|");
-//					}
 				}
 				else if (a == MATRIX_SIZE && b == c)
 				{
 					slopes[orientation][index] = 0;
-//					if (debug)
-//					{
-//						System.out.print(hor ? "-" : "|");
-//					}
 				}
 				else if (a == b && c == MATRIX_SIZE)
 				{
 					slopes[orientation][index] = 0;
-//					if (debug)
-//					{
-//						System.out.print(hor ? "-" : "|");
-//					}
 				}
 				else if (a < b && c < b)
 				{
 					slopes[orientation][index] = 0;
-//					if (debug)
-//					{
-//						System.out.print(hor ? "-" : "|");
-//					}
 				}
 				else if (a > b && c > b)
 				{
 					slopes[orientation][index] = 0;
-//					if (debug)
-//					{
-//						System.out.print(hor ? "-" : "|");
-//					}
 				}
 				else if (a > b && c <= b)
 				{
 					slopes[orientation][index] = 1;
-//					if (debug)
-//					{
-//						System.out.print("/");
-//					}
 				}
 				else if (a >= b && c < b)
 				{
 					slopes[orientation][index] = 1;
-//					if (debug)
-//					{
-//						System.out.print("/");
-//					}
 				}
 				else if (a == MATRIX_SIZE && c < b)
 				{
 					slopes[orientation][index] = 1;
-//					if (debug)
-//					{
-//						System.out.print("/");
-//					}
 				}
 				else if (a > b && c == MATRIX_SIZE)
 				{
 					slopes[orientation][index] = 1;
-//					if (debug)
-//					{
-//						System.out.print("/");
-//					}
 				}
 				else if (a < b && c >= b)
 				{
 					slopes[orientation][index] = 2;
-//					if (debug)
-//					{
-//						System.out.print("\\");
-//					}
 				}
 				else if (a <= b && c > b)
 				{
 					slopes[orientation][index] = 2;
-//					if (debug)
-//					{
-//						System.out.print("\\");
-//					}
 				}
 				else if (a == MATRIX_SIZE && c > b)
 				{
 					slopes[orientation][index] = 2;
-//					if (debug)
-//					{
-//						System.out.print("\\");
-//					}
 				}
 				else if (a < b && c == MATRIX_SIZE)
 				{
 					slopes[orientation][index] = 3;
-//					if (debug)
-//					{
-//						System.out.print("\\");
-//					}
 				}
 				else if (a == MATRIX_SIZE && b == MATRIX_SIZE && c == MATRIX_SIZE)
 				{
 					slopes[orientation][index] = -1;
-//					if (debug)
-//					{
-//						System.out.print("#");
-//					}
 				}
 				else
 				{
 					slopes[orientation][index] = -1;
-//					if (debug)
-//					{
-//						System.out.print("?");
-//					}
 				}
 			}
-//			if (debug)
-//			{
-//				System.out.println();
-//			}
 		}
 
 		aSymbol.mSlopes = slopes;
@@ -353,78 +287,6 @@ class CurvatureClassifier
 
 	private void extractCurvature(Symbol aSymbol)
 	{
-		int scale = 8;
-		int padd = 16;
-
-		BufferedImage output = null;
-		Graphics2D g = null;
-
-//		if (debug)
-//		{
-//			output = new BufferedImage(4 * MATRIX_SIZE * scale + padd + 4 * padd, 2 * MATRIX_SIZE * scale + padd + 2 * padd, BufferedImage.TYPE_INT_RGB);
-//
-//			g = output.createGraphics();
-//			g.setColor(Color.WHITE);
-//			g.fillRect(0, 0, output.getWidth(), output.getHeight());
-//
-//			for (int y = 0; y < 2; y++)
-//			{
-//				for (int x = 0; x < 4; x++)
-//				{
-//					g.setColor(new Color(255, 255, 255, 240));
-//					g.drawImage(aSymbol.getBitmap(), padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale, MATRIX_SIZE * scale, null);
-//
-//					if (y == 1)
-//					{
-//						if (x == 0)
-//						{
-//							g.fillRect(padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale / 2, MATRIX_SIZE * scale);
-//						}
-//						if (x == 1)
-//						{
-//							g.fillRect(padd + x * padd + x * MATRIX_SIZE * scale + MATRIX_SIZE * scale / 2, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale / 2, MATRIX_SIZE * scale);
-//						}
-//						if (x == 2)
-//						{
-//							g.fillRect(padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale, MATRIX_SIZE * scale / 2);
-//						}
-//						if (x == 3)
-//						{
-//							g.fillRect(padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale + MATRIX_SIZE * scale / 2, MATRIX_SIZE * scale, MATRIX_SIZE * scale / 2);
-//						}
-//					}
-//
-//					g.setColor(new Color(255, 255, 255, 64));
-//					for (int i = 0; i <= MATRIX_SIZE; i++)
-//					{
-//						int ix = padd + x * padd + x * MATRIX_SIZE * scale;
-//						int iy = padd + y * padd + y * MATRIX_SIZE * scale;
-//						g.drawLine(ix + i * scale, iy, ix + i * scale, iy + MATRIX_SIZE * scale);
-//						g.drawLine(ix, iy + i * scale, ix + MATRIX_SIZE * scale, iy + i * scale);
-//					}
-//				}
-//			}
-//			g.setStroke(new BasicStroke(3));
-//			g.setColor(new Color(0, 0, 0, 16));
-//			for (int y = 0; y < 2; y++)
-//			{
-//				for (int x = 0; x < 4; x++)
-//				{
-//					for (int i = 1; i < 3; i++)
-//					{
-//						if (x > 1)
-//						{
-//							g.drawLine(padd + x * padd + x * MATRIX_SIZE * scale + i * MATRIX_SIZE * scale / 3, padd + y * padd + y * MATRIX_SIZE * scale, padd + x * padd + x * MATRIX_SIZE * scale + i * MATRIX_SIZE * scale / 3, padd + y * padd + (y + 1) * MATRIX_SIZE * scale);
-//						}
-//						else
-//						{
-//							g.drawLine(padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale + i * MATRIX_SIZE * scale / 3, padd + x * padd + (x + 1) * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale + i * MATRIX_SIZE * scale / 3);
-//						}
-//					}
-//				}
-//			}
-//		}
-
 		double[][] contour = aSymbol.mContour;
 		int[][] slopes = aSymbol.mSlopes;
 
@@ -486,10 +348,10 @@ class CurvatureClassifier
 
 				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || Math.abs(fromY - toY) > 0) && (fromY != toY || Math.abs(fromX - toX) > 0))
 				{
-					int x1 = (int)(padd + scale * fromX) + (orientation % 4) * (padd + scale * MATRIX_SIZE);
-					int y1 = (int)(padd + scale * fromY) + (orientation / 4) * (padd + scale * MATRIX_SIZE);
-					int x2 = (int)(padd + scale * toX) + (orientation % 4) * (padd + scale * MATRIX_SIZE);
-					int y2 = (int)(padd + scale * toY) + (orientation / 4) * (padd + scale * MATRIX_SIZE);
+					int x1 = fromX + (orientation % 4) * MATRIX_SIZE;
+					int y1 = fromY + (orientation / 4) * MATRIX_SIZE;
+					int x2 = toX + (orientation % 4) * MATRIX_SIZE;
+					int y2 = toY + (orientation / 4) * MATRIX_SIZE;
 
 					int slope;
 
@@ -555,33 +417,6 @@ class CurvatureClassifier
 
 					polygons.add(slope == 1 ? polyA : polyB);
 					polygonSlopes.add(hor ? (slope == 1 ? -1 : 1) : slope);
-
-//					if (debug)
-//					{
-//						int[][] points = slope == 1 ? new int[][]
-//						{
-//							{
-//								x1, x2, x1
-//							},
-//							{
-//								y1, y2, y2
-//							}
-//						} : new int[][]
-//						{
-//							{
-//								x1, x2, x2
-//							},
-//							{
-//								y1, y2, y1
-//							}
-//						};
-//
-//						Color c = Color.getHSBColor((hor ? (slope == 1 ? -1 : 1) : slope) == 1 ? 0f : 0.5f, 1, 1);
-//						g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
-//						g.fillPolygon(points[0], points[1], 3);
-//						g.setColor(c);
-//						g.drawLine(x1, y1, x2, y2);
-//					}
 				}
 
 				fromX = toX;
@@ -596,9 +431,7 @@ class CurvatureClassifier
 			}
 
 			aSymbol.mCurvature[orientation] = polygons.toArray(new Polygon[polygons.size()]);
-
 			aSymbol.mCurvatureSlopes[orientation] = new int[polygonSlopes.size()];
-
 			for (int i = 0; i < polygonSlopes.size(); i++)
 			{
 				aSymbol.mCurvatureSlopes[orientation][i] = polygonSlopes.get(i);
@@ -607,85 +440,207 @@ class CurvatureClassifier
 			polygons.clear();
 			polygonSlopes.clear();
 		}
+	}
 
-//		if (debug)
-//		{
-//			g.dispose();
-//
-//			if (aSymbol.mCharacter != null)
-//			{
-//				String character = aSymbol.mCharacter;
-//				char c = character.charAt(0);
-//				if (c == '\"')
-//				{
-//					character = "quot";
-//				}
-//				if (c == '*')
-//				{
-//					character = "star";
-//				}
-//				if (c == '/')
-//				{
-//					character = "slash";
-//				}
-//				if (c == '\\')
-//				{
-//					character = "backslash";
-//				}
-//				if (c == '.')
-//				{
-//					character = "dot";
-//				}
-//				if (c == '-')
-//				{
-//					character = "dash";
-//				}
-//				if (c == ':')
-//				{
-//					character = "colon";
-//				}
-//				if (c == ',')
-//				{
-//					character = "comma";
-//				}
-//				if (c == '&')
-//				{
-//					character = "amp";
-//				}
-//				if (c == '(')
-//				{
-//					character = "lparan";
-//				}
-//				if (c == ')')
-//				{
-//					character = "rparan";
-//				}
-//				if (c == '=')
-//				{
-//					character = "equal";
-//				}
-//
-//				try
-//				{
-//					ImageIO.write(output, "png", new File("d:/temp/classifier_alphabet/" + (Character.isLowerCase(c) ? "L" : "") + (Character.isUpperCase(c) ? "U" : "") + character + ".png"));
-//				}
-//				catch (Exception e)
-//				{
-//					throw new IllegalStateException(e);
-//				}
-//			}
-//			else
-//			{
-//				try
-//				{
-//					ImageIO.write(output, "png", new File("d:/temp/classifier_symbols/" + aSymbol.mTextBox.y + "_" + aSymbol.mTextBox.x + ".png"));
-//				}
-//				catch (IOException e)
-//				{
-//					throw new IllegalStateException(e);
-//				}
-//			}
-//		}
+
+	private static void generateCurvatureBitmap(Symbol aSymbol, TextBox aTextBox)
+	{
+		int scale = 8;
+		int padd = 16;
+
+		BufferedImage output = new BufferedImage(4 * MATRIX_SIZE * scale + padd + 4 * padd, 2 * MATRIX_SIZE * scale + padd + 2 * padd, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = output.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, output.getWidth(), output.getHeight());
+
+		for (int y = 0; y < 2; y++)
+		{
+			for (int x = 0; x < 4; x++)
+			{
+				g.setColor(new Color(255, 255, 255, 240));
+				g.drawImage(aSymbol.getBitmap().getImage(), padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale, MATRIX_SIZE * scale, null);
+
+				if (y == 1)
+				{
+					if (x == 0)
+					{
+						g.fillRect(padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale / 2, MATRIX_SIZE * scale);
+					}
+					if (x == 1)
+					{
+						g.fillRect(padd + x * padd + x * MATRIX_SIZE * scale + MATRIX_SIZE * scale / 2, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale / 2, MATRIX_SIZE * scale);
+					}
+					if (x == 2)
+					{
+						g.fillRect(padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale, MATRIX_SIZE * scale, MATRIX_SIZE * scale / 2);
+					}
+					if (x == 3)
+					{
+						g.fillRect(padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale + MATRIX_SIZE * scale / 2, MATRIX_SIZE * scale, MATRIX_SIZE * scale / 2);
+					}
+				}
+
+				g.setColor(new Color(255, 255, 255, 64));
+				for (int i = 0; i <= MATRIX_SIZE; i++)
+				{
+					int ix = padd + x * padd + x * MATRIX_SIZE * scale;
+					int iy = padd + y * padd + y * MATRIX_SIZE * scale;
+					g.drawLine(ix + i * scale, iy, ix + i * scale, iy + MATRIX_SIZE * scale);
+					g.drawLine(ix, iy + i * scale, ix + MATRIX_SIZE * scale, iy + i * scale);
+				}
+			}
+		}
+
+		g.setStroke(new BasicStroke(3));
+		g.setColor(new Color(0, 0, 0, 16));
+		for (int y = 0; y < 2; y++)
+		{
+			for (int x = 0; x < 4; x++)
+			{
+				for (int i = 1; i < 3; i++)
+				{
+					if (x > 1)
+					{
+						g.drawLine(padd + x * padd + x * MATRIX_SIZE * scale + i * MATRIX_SIZE * scale / 3, padd + y * padd + y * MATRIX_SIZE * scale, padd + x * padd + x * MATRIX_SIZE * scale + i * MATRIX_SIZE * scale / 3, padd + y * padd + (y + 1) * MATRIX_SIZE * scale);
+					}
+					else
+					{
+						g.drawLine(padd + x * padd + x * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale + i * MATRIX_SIZE * scale / 3, padd + x * padd + (x + 1) * MATRIX_SIZE * scale, padd + y * padd + y * MATRIX_SIZE * scale + i * MATRIX_SIZE * scale / 3);
+					}
+				}
+			}
+		}
+
+		double[][] contour = aSymbol.mContour;
+		int[][] slopes = aSymbol.mSlopes;
+
+		for (int orientation = 0; orientation < 8; orientation++)
+		{
+			boolean hor = (orientation == 2 || orientation == 3 || orientation == 6 || orientation == 7);
+			int tx = 0;
+
+			int fromX = 0;
+			int fromY = 0;
+			boolean first = true;
+
+			for (int i = 0; i < MATRIX_SIZE; i++)
+			{
+				if (first)
+				{
+					tx = (int)contour[orientation][i];
+				}
+				else
+				{
+					for (int startSlope = slopes[orientation][i]; i < MATRIX_SIZE; i++)
+					{
+						if (contour[orientation][i] == -1)
+						{
+							break;
+						}
+						if (startSlope != slopes[orientation][i] && slopes[orientation][i] != 0)
+						{
+							break;
+						}
+						tx = (int)contour[orientation][i];
+					}
+				}
+
+				if (tx == -1 || tx == MATRIX_SIZE)
+				{
+					first = true;
+					continue;
+				}
+
+				int toX, toY;
+
+				if (hor)
+				{
+					toX = i - (first ? 0 : 1);
+					toY = tx;
+				}
+				else
+				{
+					toX = tx;
+					toY = i - (first ? 0 : 1);
+				}
+
+				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || Math.abs(fromY - toY) > 0) && (fromY != toY || Math.abs(fromX - toX) > 0))
+				{
+					int x1 = (int)(padd + scale * fromX) + (orientation % 4) * (padd + scale * MATRIX_SIZE) + scale / 2;
+					int y1 = (int)(padd + scale * fromY) + (orientation / 4) * (padd + scale * MATRIX_SIZE) + scale / 2;
+					int x2 = (int)(padd + scale * toX) + (orientation % 4) * (padd + scale * MATRIX_SIZE) + scale / 2;
+					int y2 = (int)(padd + scale * toY) + (orientation / 4) * (padd + scale * MATRIX_SIZE) + scale / 2;
+
+					int slope;
+
+					if (orientation == 0 || orientation == 4)
+					{
+						if (x2 < x1)
+						{
+							slope = 1;
+						}
+						else
+						{
+							slope = -1;
+						}
+					}
+					else if (orientation == 1 || orientation == 5)
+					{
+						if (x2 < x1)
+						{
+							slope = -1;
+						}
+						else
+						{
+							slope = 1;
+						}
+					}
+					else if (orientation == 2 || orientation == 6)
+					{
+						if (y2 < y1)
+						{
+							slope = -1;
+						}
+						else
+						{
+							slope = 1;
+						}
+					}
+					else
+					{
+						if (y2 < y1)
+						{
+							slope = 1;
+						}
+						else
+						{
+							slope = -1;
+						}
+					}
+
+					int[][] points = slope == 1 ? new int[][]{{x1, x2, x1},{y1, y2, y2}} : new int[][]{{x1, x2, x2},{y1, y2, y1}};
+
+					Color c = Color.getHSBColor((hor ? (slope == 1 ? -1 : 1) : slope) == 1 ? 0f : 0.5f, 1, 1);
+					g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
+					g.fillPolygon(points[0], points[1], 3);
+					g.setColor(c);
+					g.drawLine(x1, y1, x2, y2);
+				}
+
+				fromX = toX;
+				fromY = toY;
+
+				first = false;
+
+				if (i < MATRIX_SIZE && contour[orientation][i] == -1)
+				{
+					first = true;
+				}
+			}
+		}
+
+		aTextBox.setSymbolBitmap(output);
 	}
 
 
@@ -802,12 +757,6 @@ class CurvatureClassifier
 	{
 		mPage = aPage;
 
-//		if (debug)
-//		{
-//			mPage.mDebugGraphics.setColor(new Color(255, 255, 0, 128));
-//			mPage.mDebugGraphics.draw(aTextBox);
-//		}
-
 		Symbol symbol = new Symbol(aTextBox);
 		extractBitmap(aPage.getBitmap(), symbol);
 		extractContour(symbol);
@@ -815,6 +764,8 @@ class CurvatureClassifier
 		extractCurvature(symbol);
 		extractCurvatureVector(symbol);
 		extractTemplateDistance(symbol);
+
+		generateCurvatureBitmap(symbol, aTextBox);
 
 		ArrayList<Result> results = classifySymbolByCurvature(symbol, aTextBox, aResolver);
 

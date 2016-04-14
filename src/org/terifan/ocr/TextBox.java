@@ -1,6 +1,7 @@
 package org.terifan.ocr;
 
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 
@@ -12,6 +13,9 @@ public class TextBox extends Rectangle
 	private TextBox mParent;
 	private boolean mComplete;
 	private Resolver mResolver;
+	private BufferedImage mBitmap;
+	private BufferedImage mSymbolBitmap;
+	private BufferedImage mNormalizedBitmap;
 
 
 	TextBox(TextBox aParent, int aIndex, int x, int y, int w, int h)
@@ -59,7 +63,7 @@ public class TextBox extends Rectangle
 
 	void setResolver(Resolver aResolver)
 	{
-		this.mResolver = aResolver;
+		mResolver = aResolver;
 	}
 
 
@@ -125,5 +129,29 @@ public class TextBox extends Rectangle
 			word.append(r.mSymbol.mCharacter);
 		}
 		return word.toString();
+	}
+
+
+	public BufferedImage getBitmap()
+	{
+		return mBitmap;
+	}
+
+
+	public void setBitmap(BufferedImage aBitmap)
+	{
+		mBitmap = aBitmap;
+	}
+
+
+	public BufferedImage getSymbolBitmap()
+	{
+		return mSymbolBitmap;
+	}
+
+
+	public void setSymbolBitmap(BufferedImage aSymbolBitmap)
+	{
+		mSymbolBitmap = aSymbolBitmap;
 	}
 }
