@@ -2,6 +2,7 @@ package org.terifan.ocr;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Polygon;
@@ -124,8 +125,7 @@ class CurvatureClassifier
 						break;
 					}
 				}
-				int z = (int)Math.min(MATRIX_SIZE - 1, Math.round(y * fy));
-
+				int z = (int)Math.round(y * fy);
 				contour[4 * ori + 0][z] += fx * x;
 				count[4 * ori + 0][z] += 1;
 			}
@@ -140,7 +140,7 @@ class CurvatureClassifier
 						break;
 					}
 				}
-				int z = (int)Math.min(MATRIX_SIZE - 1, Math.round(y * fy));
+				int z = (int)Math.round(y * fy);
 				contour[4 * ori + 1][z] += fx * x;
 				count[4 * ori + 1][z] += 1;
 			}
@@ -155,7 +155,7 @@ class CurvatureClassifier
 						break;
 					}
 				}
-				int z = (int)Math.min(MATRIX_SIZE - 1, Math.round(x * fx));
+				int z = (int)Math.round(x * fx);
 				contour[4 * ori + 2][z] += fy * y;
 				count[4 * ori + 2][z] += 1;
 			}
@@ -170,8 +170,7 @@ class CurvatureClassifier
 						break;
 					}
 				}
-
-				int z = (int)Math.min(MATRIX_SIZE - 1, Math.round(x * fx));
+				int z = (int)Math.round(x * fx);
 				contour[4 * ori + 3][z] += fy * y;
 				count[4 * ori + 3][z] += 1;
 			}
@@ -184,18 +183,6 @@ class CurvatureClassifier
 				contour[ori][i] /= count[ori][i];
 			}
 		}
-
-//		if (debug)
-//		{
-//			for (double[] f : contour)
-//			{
-//				for (double d : f)
-//				{
-//					System.out.print((int)Math.round(d) + "\t");
-//				}
-//				System.out.println();
-//			}
-//		}
 
 		aSymbol.mContour = contour;
 	}
@@ -210,8 +197,8 @@ class CurvatureClassifier
 		{
 			for (int index = 0; index < MATRIX_SIZE; index++)
 			{
-				double b = (int)(contour[orientation][index]);
-				double a = index == 0 ? b : (int)(contour[orientation][index - 1]);
+				double b =                                (int)(contour[orientation][index    ]);
+				double a = index == 0               ? b : (int)(contour[orientation][index - 1]);
 				double c = index == MATRIX_SIZE - 1 ? b : (int)(contour[orientation][index + 1]);
 
 				if (b == -1 || b == MATRIX_SIZE)
@@ -232,7 +219,7 @@ class CurvatureClassifier
 				}
 				else if (a < b && c < b)
 				{
-					slopes[orientation][index] = 0;
+					slopes[orientation][index] = 2;
 				}
 				else if (a > b && c > b)
 				{
@@ -346,7 +333,8 @@ class CurvatureClassifier
 					toY = i - (first ? 0 : 1);
 				}
 
-				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || Math.abs(fromY - toY) > 0) && (fromY != toY || Math.abs(fromX - toX) > 0))
+//				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || Math.abs(fromY - toY) > 0) && (fromY != toY || Math.abs(fromX - toX) > 0))
+				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || fromY != toY))
 				{
 					int x1 = fromX + (orientation % 4) * MATRIX_SIZE;
 					int y1 = fromY + (orientation / 4) * MATRIX_SIZE;
@@ -417,6 +405,11 @@ class CurvatureClassifier
 
 					polygons.add(slope == 1 ? polyA : polyB);
 					polygonSlopes.add(hor ? (slope == 1 ? -1 : 1) : slope);
+				}
+
+				if (orientation == 0 && aSymbol.mTextBox.x == 476 && aSymbol.mTextBox.y == 2405)
+				{
+					System.out.println(fromX+","+fromY+" -> "+toX+","+toY);
 				}
 
 				fromX = toX;
@@ -565,7 +558,8 @@ class CurvatureClassifier
 					toY = i - (first ? 0 : 1);
 				}
 
-				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || Math.abs(fromY - toY) > 0) && (fromY != toY || Math.abs(fromX - toX) > 0))
+//				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || Math.abs(fromY - toY) > 0) && (fromY != toY || Math.abs(fromX - toX) > 0))
+				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || fromY != toY))
 				{
 					int x1 = (int)(padd + scale * fromX) + (orientation % 4) * (padd + scale * MATRIX_SIZE) + scale / 2;
 					int y1 = (int)(padd + scale * fromY) + (orientation / 4) * (padd + scale * MATRIX_SIZE) + scale / 2;
@@ -636,6 +630,22 @@ class CurvatureClassifier
 				if (i < MATRIX_SIZE && contour[orientation][i] == -1)
 				{
 					first = true;
+				}
+			}
+		}
+
+		g.setFont(new Font("arial",Font.PLAIN,8));
+		g.setColor(Color.BLACK);
+		g.drawString("" + aTextBox.x + ", " + aTextBox.y, 0, 10);
+
+		for (int y = 0, j = 0; y < 2; y++)
+		{
+			for (int x = 0; x < 4; x++, j++)
+			{
+				for (int i = 0; i < MATRIX_SIZE; i++)
+				{
+					g.drawString(""+(int)aSymbol.mContour[j][i], padd + x * padd + x * MATRIX_SIZE * scale - 10, padd + y * padd + y * MATRIX_SIZE * scale + i * scale + scale);
+//					g.drawString(""+(int)aSymbol.mSlopes[j][i], padd + x * padd + x * MATRIX_SIZE * scale - 10, padd + y * padd + y * MATRIX_SIZE * scale + i * scale + scale);
 				}
 			}
 		}
