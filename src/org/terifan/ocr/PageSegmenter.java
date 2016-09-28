@@ -206,6 +206,9 @@ class PageSegmenter
 		boolean bottom = false;
 		boolean left = false;
 
+		w = Math.min(w, mPage.getWidth() - x - 1);
+		h = Math.min(h, mPage.getHeight() - y - 1);
+
 		for (int i = 0; i < w; i++)
 		{
 			if (!top && mPage.isBlack(x + i, y))
