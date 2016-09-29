@@ -57,7 +57,14 @@ class CurvatureClassifier
 
 		for (TextBox box : textBoxes)
 		{
-			learnSymbol(aBitmap, aFontName, box, DEFAULT_ALPHABET, aAlphabet);
+			Symbol symbol = learnSymbol(aBitmap, aFontName, box, DEFAULT_ALPHABET, aAlphabet);
+
+			if (symbol != null)
+			{
+				generateCurvatureBitmap(symbol, box);
+
+				symbol.setSymbolBitmap(box.getSymbolBitmap());
+			}
 		}
 	}
 
@@ -720,7 +727,7 @@ class CurvatureClassifier
 	}
 
 
-	private void learnSymbol(Bitmap aBitmap, String aFontName, TextBox aTextBox, String aDefaultAlphabet, String aAlphabet)
+	private Symbol learnSymbol(Bitmap aBitmap, String aFontName, TextBox aTextBox, String aDefaultAlphabet, String aAlphabet)
 	{
 		Symbol symbol = new Symbol(aTextBox);
 
@@ -750,7 +757,7 @@ class CurvatureClassifier
 
 		if (symbol.getBitmap().getRectFillFactor(0, 0, MATRIX_SIZE, MATRIX_SIZE) == 0)
 		{
-			return;
+			return null;
 		}
 
 		extractContour(symbol);
@@ -760,6 +767,8 @@ class CurvatureClassifier
 		extractTemplateDistance(symbol);
 
 		mSymbols.add(symbol);
+
+		return symbol;
 	}
 
 

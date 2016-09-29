@@ -2,6 +2,7 @@ package org.terifan.ocr;
 
 import java.awt.Insets;
 import java.awt.Polygon;
+import java.awt.image.BufferedImage;
 
 
 public class Symbol
@@ -19,6 +20,7 @@ public class Symbol
 	protected int [][] mClosestPixel;
 	protected double mCurvatureWeight;
 	protected String mDefCharacter;
+	protected BufferedImage mSymbolBitmap;
 
 
 	public Symbol(TextBox aTextBox)
@@ -55,5 +57,17 @@ public class Symbol
 	public String toString()
 	{
 		return mCharacter;
+	}
+
+
+	public BufferedImage getSymbolBitmap()
+	{
+		return mSymbolBitmap;
+	}
+
+
+	public void setSymbolBitmap(BufferedImage aSymbolBitmap)
+	{
+		mSymbolBitmap = aSymbolBitmap;
 	}
 }
