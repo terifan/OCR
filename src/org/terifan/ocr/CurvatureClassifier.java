@@ -198,88 +198,116 @@ class CurvatureClassifier
 	private void extractSlopes(Symbol aSymbol)
 	{
 		int[][] slopes = new int[8][MATRIX_SIZE];
+		int[][] slopes2 = new int[8][MATRIX_SIZE];
+		String[][] slopesX = new String[8][MATRIX_SIZE];
 		double[][] contour = aSymbol.mContour;
 
 		for (int orientation = 0; orientation < 8; orientation++)
 		{
 			for (int index = 0; index < MATRIX_SIZE; index++)
 			{
-				double b =                                (int)(contour[orientation][index    ]);
-				double a = index == 0               ? b : (int)(contour[orientation][index - 1]);
-				double c = index == MATRIX_SIZE - 1 ? b : (int)(contour[orientation][index + 1]);
+				int b =                                (int)(contour[orientation][index    ]);
+				int a = index == 0               ? b : (int)(contour[orientation][index - 1]);
+				int c = index == MATRIX_SIZE - 1 ? b : (int)(contour[orientation][index + 1]);
 
 				if (a == -1) a = MATRIX_SIZE;
 				if (b == -1) b = MATRIX_SIZE;
 				if (c == -1) c = MATRIX_SIZE;
 
+				slopesX[orientation][index] = a+":"+b+":"+c;
+
+				int s;
+				int t;
+
 				if (b == MATRIX_SIZE)
 				{
-					slopes[orientation][index] = -1;
+					s = -1;
+					t = 0;
 				}
 				else if (a == b && b == c)
 				{
-					slopes[orientation][index] = 0;
+					s = 0;
+					t = 1;
 				}
 				else if (a == MATRIX_SIZE && b == c)
 				{
-					slopes[orientation][index] = 0;
+					s = 0;
+					t = 2;
 				}
 				else if (a == b && c == MATRIX_SIZE)
 				{
-					slopes[orientation][index] = 0;
+					s = 0;
+					t = 3;
 				}
 				else if (a < b && c < b)
 				{
-					slopes[orientation][index] = 2;
+					s = 2;
+					t = 4;
 				}
 				else if (a > b && c > b)
 				{
-					slopes[orientation][index] = 0;
+					s = 0;
+					t = 5;
 				}
 				else if (a > b && c <= b)
 				{
-					slopes[orientation][index] = 1;
+					s = 1;
+					t = 6;
 				}
 				else if (a >= b && c < b)
 				{
-					slopes[orientation][index] = 1;
+					s = 1;
+					t = 7;
 				}
 				else if (a == MATRIX_SIZE && c < b)
 				{
-					slopes[orientation][index] = 1;
+					s = 1;
+					t = 8;
 				}
 				else if (a > b && c == MATRIX_SIZE)
 				{
-					slopes[orientation][index] = 1;
+					s = 1;
+					t = 9;
 				}
 				else if (a < b && c >= b)
 				{
-					slopes[orientation][index] = 2;
+					s = 2;
+					t = 10;
 				}
 				else if (a <= b && c > b)
 				{
-					slopes[orientation][index] = 2;
+					s = 0; // ???????? was 2
+					t = 11;
 				}
 				else if (a == MATRIX_SIZE && c > b)
 				{
-					slopes[orientation][index] = 2;
+					s = 2;
+					t = 12;
 				}
 				else if (a < b && c == MATRIX_SIZE)
 				{
-					slopes[orientation][index] = 3;
+					s = 3;
+					t = 13;
 				}
 				else if (a == MATRIX_SIZE && b == MATRIX_SIZE && c == MATRIX_SIZE)
 				{
-					slopes[orientation][index] = -1;
+					s = -1;
+					t = 14;
 				}
 				else
 				{
-					slopes[orientation][index] = -1;
+					s = -1;
+					t = 15;
 				}
+
+				slopes[orientation][index] = s;
+				slopes2[orientation][index] = t;
 			}
 		}
 
 		aSymbol.mSlopes = slopes;
+		aSymbol.mSlopes2 = slopes2;
+		aSymbol.mSlopesX = slopesX;
 	}
 
 
@@ -450,7 +478,7 @@ class CurvatureClassifier
 	private static void generateCurvatureBitmap(Symbol aSymbol, TextBox aTextBox)
 	{
 		int scale = 8;
-		int padd = 16;
+		int padd = 32;
 
 		BufferedImage output = new BufferedImage(4 * MATRIX_SIZE * scale + padd + 4 * padd, 2 * MATRIX_SIZE * scale + padd + 2 * padd, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = output.createGraphics();
@@ -648,6 +676,7 @@ class CurvatureClassifier
 		g.setFont(new Font("arial",Font.PLAIN,8));
 		g.setColor(Color.BLACK);
 		g.drawString("" + aTextBox.x + ", " + aTextBox.y, 0, 10);
+		g.setColor(Color.GREEN);
 
 		for (int y = 0, j = 0; y < 2; y++)
 		{
@@ -655,7 +684,7 @@ class CurvatureClassifier
 			{
 				for (int i = 0; i < MATRIX_SIZE; i++)
 				{
-					g.drawString(aSymbol.mSlopes[j][i]+" "+(int)aSymbol.mContour[j][i], padd + x * padd + x * MATRIX_SIZE * scale - 10, padd + y * padd + y * MATRIX_SIZE * scale + i * scale + scale);
+					g.drawString(aSymbol.mSlopesX[j][i]+" "+slopes[j][i]+" "+aSymbol.mSlopes2[j][i]+" "+(int)aSymbol.mContour[j][i], padd + x * padd + x * MATRIX_SIZE * scale - 30, padd + y * padd + y * MATRIX_SIZE * scale + i * scale + scale);
 //					g.drawString(""+(int)aSymbol.mSlopes[j][i], padd + x * padd + x * MATRIX_SIZE * scale - 10, padd + y * padd + y * MATRIX_SIZE * scale + i * scale + scale);
 				}
 			}

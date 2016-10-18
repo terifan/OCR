@@ -21,6 +21,8 @@ public class Symbol
 	protected double mCurvatureWeight;
 	protected String mDefCharacter;
 	protected BufferedImage mSymbolBitmap;
+	String[][] mSlopesX;
+	int[][] mSlopes2;
 
 
 	public Symbol(TextBox aTextBox)
