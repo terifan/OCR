@@ -208,7 +208,11 @@ class CurvatureClassifier
 				double a = index == 0               ? b : (int)(contour[orientation][index - 1]);
 				double c = index == MATRIX_SIZE - 1 ? b : (int)(contour[orientation][index + 1]);
 
-				if (b == -1 || b == MATRIX_SIZE)
+				if (a == -1) a = MATRIX_SIZE;
+				if (b == -1) b = MATRIX_SIZE;
+				if (c == -1) c = MATRIX_SIZE;
+
+				if (b == MATRIX_SIZE)
 				{
 					slopes[orientation][index] = -1;
 				}
@@ -651,7 +655,7 @@ class CurvatureClassifier
 			{
 				for (int i = 0; i < MATRIX_SIZE; i++)
 				{
-					g.drawString(""+(int)aSymbol.mContour[j][i], padd + x * padd + x * MATRIX_SIZE * scale - 10, padd + y * padd + y * MATRIX_SIZE * scale + i * scale + scale);
+					g.drawString(aSymbol.mSlopes[j][i]+" "+(int)aSymbol.mContour[j][i], padd + x * padd + x * MATRIX_SIZE * scale - 10, padd + y * padd + y * MATRIX_SIZE * scale + i * scale + scale);
 //					g.drawString(""+(int)aSymbol.mSlopes[j][i], padd + x * padd + x * MATRIX_SIZE * scale - 10, padd + y * padd + y * MATRIX_SIZE * scale + i * scale + scale);
 				}
 			}
