@@ -170,4 +170,10 @@ public class OCREngine
 	{
 		return mPage.getBitmap().getRegion(aTextBox.x, aTextBox.y, aTextBox.x + aTextBox.width, aTextBox.y + aTextBox.height);
 	}
+
+
+	public ArrayList<Symbol> getTemplates()
+	{
+		return mCurvatureClassifier.getSymbols();
+	}
 }

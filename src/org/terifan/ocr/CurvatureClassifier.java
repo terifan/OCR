@@ -32,6 +32,12 @@ class CurvatureClassifier
 	}
 
 
+	public ArrayList<Symbol> getSymbols()
+	{
+		return mSymbols;
+	}
+
+
 	public void learn(String aFontName, Bitmap aBitmap, String aAlphabet)
 	{
 		if (aAlphabet == null)
@@ -87,7 +93,17 @@ class CurvatureClassifier
 
 		box.setBitmap(tmp);
 
-		tmp = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BICUBIC, BufferedImage.TYPE_BYTE_BINARY);
+		tmp = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BILINEAR, BufferedImage.TYPE_INT_RGB);
+
+		for (int y = 0; y < MATRIX_SIZE; y++)
+		{
+			for (int x = 0; x < MATRIX_SIZE; x++)
+			{
+				int c = tmp.getRGB(x, y);
+				c = ((255 & (c >> 16)) + (255 & (c >> 8)) + (255 & c)) / 3;
+				tmp.setRGB(x, y, c > 128 ? 0xffffff : 0x000000);
+			}
+		}
 
 		aSymbol.setBitmap(new Bitmap(tmp));
 	}
