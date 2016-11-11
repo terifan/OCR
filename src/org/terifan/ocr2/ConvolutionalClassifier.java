@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
+// https://en.wikipedia.org/wiki/Gabor_filter
 
 public class ConvolutionalClassifier
 {
@@ -47,38 +48,20 @@ public class ConvolutionalClassifier
 
 			BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
 
-//			int[][] filter =
+//			int[][] kernel =
 //			{
-//				{0,-1,0},
-//				{-1,4,-1},
-//				{0,-1,0}
+//				{-1,-2,-1},
+//				{0,0,0},
+//				{1,2,1}
 //			};
-			int[][] filter =
+			int[][] kernel =
 			{
-				{-1,-2,-5,-2,-1},
-				{0,0,0,0,0},
-				{0,0,0,0,0},
-				{0,0,0,0,0},
-				{1,2,5,2,1}
+				{-1,0,1},
+				{-2,0,2},
+				{-1,0,1}
 			};
-//			int[][] filter =
-//			{
-//				{ 0, 0,-1, 0, 0},
-//				{ 0,-5, 0, 0, 0},
-//				{-1, 0, 0, 0, 1},
-//				{ 0, 0, 0, 5, 0},
-//				{ 0, 0, 1, 0, 0}
-//			};
-//			int[][] filter =
-//			{
-//				{ -1, 0, 0, 0, 1},
-//				{ -2, 0, 0, 0, 2},
-//				{ -5, 0, 0, 0, 5},
-//				{ -2, 0, 0, 0, 2},
-//				{ -1, 0, 0, 0, 1}
-//			};
 
-			filerImage(src, dst, filter);
+			filerImage(src, dst, kernel);
 
 			ImageIO.write(src, "png", new File("d:/output-src.png"));
 			ImageIO.write(dst, "png", new File("d:/output-dst.png"));
