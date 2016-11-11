@@ -90,10 +90,12 @@ public class ConvolutionalClassifier
 	}
 
 
-	private static void filerImage(BufferedImage aSrc, BufferedImage aDst, int[][] aFilter)
+	private static void filerImage(BufferedImage aSrc, BufferedImage aDst, int[][] aKernel)
 	{
 		int sw = aSrc.getWidth();
 		int sh = aSrc.getHeight();
+		int kw = aKernel[0].length;
+		int kh = aKernel.length;
 
 		for (int y = 0; y < sh; y++)
 		{
@@ -101,21 +103,20 @@ public class ConvolutionalClassifier
 			{
 				int sum = 0;
 
-				for (int fy = 0; fy < aFilter.length; fy++)
+				for (int ky = 0; ky < kh; ky++)
 				{
-					for (int fx = 0; fx < aFilter[fy].length; fx++)
+					for (int kx = 0; kx < kw; kx++)
 					{
-						int sx = x + fx - aFilter[fy].length / 2;
-						int sy = y + fy - aFilter.length / 2;
+						int sx = x + kx - kw / 2;
+						int sy = y + ky - kh / 2;
 						sx = Math.max(Math.min(sx, sw - 1), 0);
 						sy = Math.max(Math.min(sy, sh - 1), 0);
 
-						sum += aFilter[fy][fx] * (aSrc.getRGB(sx, sy) & 0xff);
+						sum += aKernel[ky][kx] * (aSrc.getRGB(sx, sy) & 0xff);
 					}
 				}
 
-//				int c = 128 + Math.max(-128, Math.min(127, sum / 2));
-				int c = Math.max(0, Math.min(255, sum));
+				int c = 128 + Math.max(-128, Math.min(127, sum / (kw * kh)));
 
 				aDst.setRGB(x, y, (c << 16) + (c << 8) + c);
 			}
