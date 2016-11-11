@@ -41,7 +41,7 @@ public class Settings
 	}
 
 
-	public void setCharacterSpacing(double aCharacterSpacing)
+	public void setMaxCharacterSpacing(double aCharacterSpacing)
 	{
 		mCharacterSpacing = aCharacterSpacing;
 	}
@@ -107,7 +107,7 @@ public class Settings
 	}
 
 
-	public void setCharacterSpacingFraction(double aFraction, Page aPage)
+	public void setMaxCharacterSpacingFraction(double aFraction, Page aPage)
 	{
 		mCharacterSpacing = aFraction * aPage.getWidth() / 100;
 	}

@@ -7,23 +7,28 @@ import java.util.ArrayList;
 
 public class OCREngine
 {
+	public final static int DEFAULT_MATRIX_SIZE = 9;
+
 	private Page mPage;
 	private Resolver mResolver;
 	private ArrayList<TextBox> mTextBoxes;
 	private ArrayList<TextBox> mScanResult;
 	private CurvatureClassifier mCurvatureClassifier;
 	private Settings mSettings;
+	private int mMatrixSize;
 
 
-	public OCREngine()
+	public OCREngine(int aMatrixSize)
 	{
+		mMatrixSize = aMatrixSize;
+
 		reset();
 	}
 
 
 	public void reset()
 	{
-		mCurvatureClassifier = new CurvatureClassifier();
+		mCurvatureClassifier = new CurvatureClassifier(mMatrixSize);
 		mResolver = null;
 	}
 

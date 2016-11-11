@@ -16,8 +16,6 @@ import java.util.Collections;
 class CurvatureClassifier
 {
 	private final static int WHITE_THRESHOLD = 160;
-	private final static int MATRIX_SIZE = 9;
-	private final static double ONE_THIRD_MATRIX = MATRIX_SIZE / 3.0;
 	public final static String DEFAULT_ALPHABET =
 		  "ABCDEFGHIJKLM" + "NOPQRSTUVWXYZ"
 		+ "abcdefghijklm" + "nopqrstuvwxyz"
@@ -25,10 +23,15 @@ class CurvatureClassifier
 
 	private ArrayList<Symbol> mSymbols;
 	private Page mPage;
+	private int mMatrixSize;
+	private double mOneThirdMatrix;
 
 
-	public CurvatureClassifier()
+	public CurvatureClassifier(int aMatrixSize)
 	{
+		mMatrixSize = aMatrixSize;
+		mOneThirdMatrix = mMatrixSize / 3.0;
+
 		reset();
 	}
 
@@ -94,11 +97,11 @@ class CurvatureClassifier
 
 		box.setBitmap(tmp);
 
-		tmp = ImageTools.resize(tmp, MATRIX_SIZE, MATRIX_SIZE, RenderingHints.VALUE_INTERPOLATION_BILINEAR, BufferedImage.TYPE_INT_RGB);
+		tmp = ImageTools.resize(tmp, mMatrixSize, mMatrixSize, RenderingHints.VALUE_INTERPOLATION_BILINEAR, BufferedImage.TYPE_INT_RGB);
 
-		for (int y = 0; y < MATRIX_SIZE; y++)
+		for (int y = 0; y < mMatrixSize; y++)
 		{
-			for (int x = 0; x < MATRIX_SIZE; x++)
+			for (int x = 0; x < mMatrixSize; x++)
 			{
 				int c = tmp.getRGB(x, y);
 				c = ((255 & (c >> 16)) + (255 & (c >> 8)) + (255 & c)) / 3;
@@ -112,11 +115,11 @@ class CurvatureClassifier
 
 	private void extractTemplateDistance(Symbol aSymbol)
 	{
-		aSymbol.mClosestPixel = new int[MATRIX_SIZE][MATRIX_SIZE];
+		aSymbol.mClosestPixel = new int[mMatrixSize][mMatrixSize];
 
-		for (int y = 0; y < MATRIX_SIZE; y++)
+		for (int y = 0; y < mMatrixSize; y++)
 		{
-			for (int x = 0; x < MATRIX_SIZE; x++)
+			for (int x = 0; x < mMatrixSize; x++)
 			{
 				aSymbol.mClosestPixel[y][x] = findClosestPixel(aSymbol, x, y);
 			}
@@ -128,14 +131,14 @@ class CurvatureClassifier
 	{
 		Bitmap image = aSymbol.getBitmap();
 
-		double[][] contour = new double[8][MATRIX_SIZE];
-		int[][] count = new int[8][MATRIX_SIZE];
+		double[][] contour = new double[8][mMatrixSize];
+		int[][] count = new int[8][mMatrixSize];
 
 		int w = image.getWidth();
 		int h = image.getHeight();
 
-		double fx = MATRIX_SIZE / (double)w;
-		double fy = MATRIX_SIZE / (double)h;
+		double fx = mMatrixSize / (double)w;
+		double fy = mMatrixSize / (double)h;
 
 		for (int ori = 0; ori < 2; ori++)
 		{
@@ -202,7 +205,7 @@ class CurvatureClassifier
 
 		for (int ori = 0; ori < 8; ori++)
 		{
-			for (int i = 0; i < MATRIX_SIZE; i++)
+			for (int i = 0; i < mMatrixSize; i++)
 			{
 				contour[ori][i] /= count[ori][i];
 			}
@@ -214,29 +217,29 @@ class CurvatureClassifier
 
 	private void extractSlopes(Symbol aSymbol)
 	{
-		int[][] slopes = new int[8][MATRIX_SIZE];
-		int[][] slopes2 = new int[8][MATRIX_SIZE];
-		String[][] slopesX = new String[8][MATRIX_SIZE];
+		int[][] slopes = new int[8][mMatrixSize];
+		int[][] slopes2 = new int[8][mMatrixSize];
+		String[][] slopesX = new String[8][mMatrixSize];
 		double[][] contour = aSymbol.mContour;
 
 		for (int orientation = 0; orientation < 8; orientation++)
 		{
-			for (int index = 0; index < MATRIX_SIZE; index++)
+			for (int index = 0; index < mMatrixSize; index++)
 			{
 				int b =                                (int)(contour[orientation][index    ]);
 				int a = index == 0               ? b : (int)(contour[orientation][index - 1]);
-				int c = index == MATRIX_SIZE - 1 ? b : (int)(contour[orientation][index + 1]);
+				int c = index == mMatrixSize - 1 ? b : (int)(contour[orientation][index + 1]);
 
-				if (a == -1) a = MATRIX_SIZE;
-				if (b == -1) b = MATRIX_SIZE;
-				if (c == -1) c = MATRIX_SIZE;
+				if (a == -1) a = mMatrixSize;
+				if (b == -1) b = mMatrixSize;
+				if (c == -1) c = mMatrixSize;
 
 				slopesX[orientation][index] = a+":"+b+":"+c;
 
 				int s;
 				int t;
 
-				if (b == MATRIX_SIZE)
+				if (b == mMatrixSize)
 				{
 					s = -1;
 					t = 0;
@@ -246,12 +249,12 @@ class CurvatureClassifier
 					s = 0;
 					t = 1;
 				}
-				else if (a == MATRIX_SIZE && b == c)
+				else if (a == mMatrixSize && b == c)
 				{
 					s = 0;
 					t = 2;
 				}
-				else if (a == b && c == MATRIX_SIZE)
+				else if (a == b && c == mMatrixSize)
 				{
 					s = 0;
 					t = 3;
@@ -276,12 +279,12 @@ class CurvatureClassifier
 					s = 1;
 					t = 7;
 				}
-				else if (a == MATRIX_SIZE && c < b)
+				else if (a == mMatrixSize && c < b)
 				{
 					s = 1;
 					t = 8;
 				}
-				else if (a > b && c == MATRIX_SIZE)
+				else if (a > b && c == mMatrixSize)
 				{
 					s = 1;
 					t = 9;
@@ -296,17 +299,17 @@ class CurvatureClassifier
 					s = 2;
 					t = 11;
 				}
-				else if (a == MATRIX_SIZE && c > b)
+				else if (a == mMatrixSize && c > b)
 				{
 					s = 2;
 					t = 12;
 				}
-				else if (a < b && c == MATRIX_SIZE)
+				else if (a < b && c == mMatrixSize)
 				{
 					s = 3;
 					t = 13;
 				}
-				else if (a == MATRIX_SIZE && b == MATRIX_SIZE && c == MATRIX_SIZE)
+				else if (a == mMatrixSize && b == mMatrixSize && c == mMatrixSize)
 				{
 					s = -1;
 					t = 14;
@@ -348,7 +351,7 @@ class CurvatureClassifier
 			int fromY = 0;
 			boolean first = true;
 
-			for (int i = 0; i < MATRIX_SIZE; i++)
+			for (int i = 0; i < mMatrixSize; i++)
 			{
 				if (first)
 				{
@@ -356,7 +359,7 @@ class CurvatureClassifier
 				}
 				else
 				{
-					for (int startSlope = slopes[orientation][i]; i < MATRIX_SIZE; i++)
+					for (int startSlope = slopes[orientation][i]; i < mMatrixSize; i++)
 					{
 						if (contour[orientation][i] == -1)
 						{
@@ -370,7 +373,7 @@ class CurvatureClassifier
 					}
 				}
 
-				if (tx == -1 || tx == MATRIX_SIZE)
+				if (tx == -1 || tx == mMatrixSize)
 				{
 					first = true;
 					continue;
@@ -390,12 +393,12 @@ class CurvatureClassifier
 				}
 
 //				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || Math.abs(fromY - toY) > 0) && (fromY != toY || Math.abs(fromX - toX) > 0))
-				if (!first && tx > -1 && tx < MATRIX_SIZE && (fromX != toX || fromY != toY))
+				if (!first && tx > -1 && tx < mMatrixSize && (fromX != toX || fromY != toY))
 				{
-					int x1 = fromX + (orientation % 4) * MATRIX_SIZE;
-					int y1 = fromY + (orientation / 4) * MATRIX_SIZE;
-					int x2 = toX + (orientation % 4) * MATRIX_SIZE;
-					int y2 = toY + (orientation / 4) * MATRIX_SIZE;
+					int x1 = fromX + (orientation % 4) * mMatrixSize;
+					int y1 = fromY + (orientation / 4) * mMatrixSize;
+					int x2 = toX + (orientation % 4) * mMatrixSize;
+					int y2 = toY + (orientation / 4) * mMatrixSize;
 
 					int slope;
 
@@ -473,7 +476,7 @@ class CurvatureClassifier
 
 				first = false;
 
-				if (i < MATRIX_SIZE && contour[orientation][i] == -1)
+				if (i < mMatrixSize && contour[orientation][i] == -1)
 				{
 					first = true;
 				}
@@ -492,7 +495,7 @@ class CurvatureClassifier
 	}
 
 
-	private static void generateCurvatureBitmap(Symbol aSymbol, TextBox aTextBox)
+	private void generateCurvatureBitmap(Symbol aSymbol, TextBox aTextBox)
 	{
 		int scale = 8;
 		int padLeft = 40;
@@ -500,7 +503,7 @@ class CurvatureClassifier
 		int padBottom = 10;
 		int padX = 32;
 		int padY = 64;
-		int size = MATRIX_SIZE * scale;
+		int size = mMatrixSize * scale;
 
 		BufferedImage output = new BufferedImage(padLeft + 1 * (size + padX) + padRight, 8 * (size + padY) + padBottom, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = output.createGraphics();
@@ -539,7 +542,7 @@ class CurvatureClassifier
 
 			g.setColor(new Color(255, 255, 255, 64));
 
-			for (int i = 0; i <= MATRIX_SIZE; i++)
+			for (int i = 0; i <= mMatrixSize; i++)
 			{
 				g.drawLine(ox + i * scale, oy, ox + i * scale, oy + size);
 				g.drawLine(ox, oy + i * scale, ox + size, oy + i * scale);
@@ -583,7 +586,7 @@ class CurvatureClassifier
 			int fromY = 0;
 			boolean first = true;
 
-			for (int i = 0; i < MATRIX_SIZE; i++)
+			for (int i = 0; i < mMatrixSize; i++)
 			{
 				if (first)
 				{
@@ -591,7 +594,7 @@ class CurvatureClassifier
 				}
 				else
 				{
-					for (int startSlope = slopes[orientation][i]; i < MATRIX_SIZE; i++)
+					for (int startSlope = slopes[orientation][i]; i < mMatrixSize; i++)
 					{
 						if (contour[orientation][i] == -1)
 						{
@@ -605,7 +608,7 @@ class CurvatureClassifier
 					}
 				}
 
-				if (tmp == -1 || tmp == MATRIX_SIZE)
+				if (tmp == -1 || tmp == mMatrixSize)
 				{
 					first = true;
 					continue;
@@ -624,12 +627,12 @@ class CurvatureClassifier
 					toY = i - (first ? 0 : 1);
 				}
 
-				if (!first && tmp > -1 && tmp < MATRIX_SIZE && (fromX != toX || fromY != toY))
+				if (!first && tmp > -1 && tmp < mMatrixSize && (fromX != toX || fromY != toY))
 				{
-					int x1 = (int)(padX + scale * fromX) + x * (padX + scale * MATRIX_SIZE) + scale / 2 + padLeft;
-					int y1 = (int)(padY + scale * fromY) + y * (padY + scale * MATRIX_SIZE) + scale / 2;
-					int x2 = (int)(padX + scale * toX) + x * (padX + scale * MATRIX_SIZE) + scale / 2 + padLeft;
-					int y2 = (int)(padY + scale * toY) + y * (padY + scale * MATRIX_SIZE) + scale / 2;
+					int x1 = (int)(padX + scale * fromX) + x * (padX + scale * mMatrixSize) + scale / 2 + padLeft;
+					int y1 = (int)(padY + scale * fromY) + y * (padY + scale * mMatrixSize) + scale / 2;
+					int x2 = (int)(padX + scale * toX) + x * (padX + scale * mMatrixSize) + scale / 2 + padLeft;
+					int y2 = (int)(padY + scale * toY) + y * (padY + scale * mMatrixSize) + scale / 2;
 
 					int slope;
 
@@ -692,7 +695,7 @@ class CurvatureClassifier
 
 				first = false;
 
-				if (i < MATRIX_SIZE && contour[orientation][i] == -1)
+				if (i < mMatrixSize && contour[orientation][i] == -1)
 				{
 					first = true;
 				}
@@ -719,7 +722,7 @@ class CurvatureClassifier
 			int x = orientation / 8;
 			int y = orientation % 8;
 
-			for (int i = 0; i < MATRIX_SIZE; i++)
+			for (int i = 0; i < mMatrixSize; i++)
 			{
 				String text = aSymbol.mSlopesX[orientation][i]+" "+slopes[orientation][i]+" "+aSymbol.mSlopes2[orientation][i]+" "+(int)aSymbol.mContour[orientation][i];
 				int tx = padX + x * (padX + size) - 30;
@@ -750,22 +753,22 @@ class CurvatureClassifier
 
 				double area1, area2, area3;
 
-				int v0 = (int)(0 * ONE_THIRD_MATRIX);
-				int v1 = (int)(1 * ONE_THIRD_MATRIX);
-				int v2 = (int)(2 * ONE_THIRD_MATRIX);
-				int v3 = (int)(3 * ONE_THIRD_MATRIX);
+				int v0 = (int)(0 * mOneThirdMatrix);
+				int v1 = (int)(1 * mOneThirdMatrix);
+				int v2 = (int)(2 * mOneThirdMatrix);
+				int v3 = (int)(3 * mOneThirdMatrix);
 
 				if (hor)
 				{
-					area1 = intersect(p, 0, v0, MATRIX_SIZE, v1);
-					area2 = intersect(p, 0, v1, MATRIX_SIZE, v2);
-					area3 = intersect(p, 0, v2, MATRIX_SIZE, v3);
+					area1 = intersect(p, 0, v0, mMatrixSize, v1);
+					area2 = intersect(p, 0, v1, mMatrixSize, v2);
+					area3 = intersect(p, 0, v2, mMatrixSize, v3);
 				}
 				else
 				{
-					area1 = intersect(p, v0, 0, v1, MATRIX_SIZE);
-					area2 = intersect(p, v1, 0, v2, MATRIX_SIZE);
-					area3 = intersect(p, v2, 0, v3, MATRIX_SIZE);
+					area1 = intersect(p, v0, 0, v1, mMatrixSize);
+					area2 = intersect(p, v1, 0, v2, mMatrixSize);
+					area3 = intersect(p, v2, 0, v3, mMatrixSize);
 				}
 
 				fill[orientation][type][0] += area1;
@@ -826,7 +829,7 @@ class CurvatureClassifier
 
 		extractBitmap(aBitmap, symbol);
 
-		if (symbol.getBitmap().getRectFillFactor(0, 0, MATRIX_SIZE, MATRIX_SIZE) == 0)
+		if (symbol.getBitmap().getRectFillFactor(0, 0, mMatrixSize, mMatrixSize) == 0)
 		{
 			return null;
 		}
@@ -945,7 +948,7 @@ class CurvatureClassifier
 	{
 		Bitmap bitmap = aSymbol.getBitmap();
 
-		for (int s = 0; s < MATRIX_SIZE; s++)
+		for (int s = 0; s < mMatrixSize; s++)
 		{
 			for (int i = -s; i <= s; i++)
 			{
@@ -967,7 +970,7 @@ class CurvatureClassifier
 				}
 			}
 		}
-		return MATRIX_SIZE;
+		return mMatrixSize;
 	}
 
 
