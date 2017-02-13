@@ -741,7 +741,7 @@ class ImageRotatorBuffer
 				Pole[1] = Math.sqrt(135.0 / 2.0 + Math.sqrt(17745.0 / 4.0)) - Math.sqrt(105.0 / 4.0) - 13.0 / 2.0;
 				break;
 			default:
-				throw new RuntimeException("Invalid spline degree");
+				throw new IllegalStateException("Invalid spline degree");
 		}
 
 		// convert the image samples into interpolation coefficients
@@ -891,7 +891,7 @@ class ImageRotatorBuffer
 				yWeight[4] = t0 - t1;
 				break;
 			default:
-				throw new RuntimeException("Invalid spline degree");
+				throw new IllegalStateException("Invalid spline degree");
 		}
 
 		// apply the mirror boundary conditions
